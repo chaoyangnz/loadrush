@@ -8,14 +8,14 @@ import { sample } from 'lodash';
 import EventEmitter from 'eventemitter3';
 
 export class Runner {
-  vuPoolSize = parseInt(process.env.LOADRAMP_VU_POOL_SIZE || '10000', 10);
+  vuPoolSize = parseInt(process.env.LOADFLUX_VU_POOL_SIZE || '10000', 10);
 
   scenarios: Scenario[] = [];
   vus: Bitmap = new Bitmap(this.vuPoolSize);
   emitter: EventEmitter = new EventEmitter();
-  duration = parseInt(process.env.LOADRAMP_DURATION || '600', 10);
+  duration = parseInt(process.env.LOADFLUX_DURATION || '600', 10);
 
-  logger: Debugger = debug('loadramp:trace');
+  logger: Debugger = debug('loadflux:trace');
 
   // attach a vu to a scenario
   private async run() {
