@@ -1,6 +1,6 @@
-![](https://img.shields.io/npm/v/loadflux?color=green)
-![](https://img.shields.io/github/package-json/v/chaoyangnz/loadflux?color=blue)
-![](https://img.shields.io/github/license/chaoyangnz/loadflux?color=orange)
+![](https://img.shields.io/npm/v/loadflux?color=green&style=flat-square)
+![](https://img.shields.io/github/package-json/v/chaoyangnz/loadflux?color=blue&style=flat-square)
+![](https://img.shields.io/github/license/chaoyangnz/loadflux?color=orange&style=flat-square)
 ![](https://github.com/chaoyangnz/loadflux/workflows/build/badge.svg)
 
 # LOADFLUX
