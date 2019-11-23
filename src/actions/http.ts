@@ -1,4 +1,4 @@
-import axios, { AxiosRequestConfig, AxiosResponse } from 'axios';
+import { AxiosRequestConfig, AxiosResponse } from 'axios';
 import { Action, ActionType } from '../action';
 import { Context } from '../context';
 import { cloneDeep } from 'lodash';
@@ -51,7 +51,7 @@ export function request(requestSpec: RequestSpec): Action {
       }
       let response;
       try {
-        response = await axios.request({
+        response = await context.$axios.request({
           url: spec.url,
           method: spec.method,
           data: spec.data,
@@ -62,7 +62,7 @@ export function request(requestSpec: RequestSpec): Action {
           count: 1,
           method: requestSpec.method as string,
           url: requestSpec.url,
-          err: e.message.replace(/\s+/, '-'),
+          err: e.message,
         });
         throw e;
       }
@@ -83,7 +83,7 @@ export function request(requestSpec: RequestSpec): Action {
               method: requestSpec.method as string,
               url: requestSpec.url,
               status: response.status,
-              reason: 'assert-failure',
+              error: 'assert-failure',
             });
             throw e;
           }
@@ -101,7 +101,7 @@ export function request(requestSpec: RequestSpec): Action {
               method: requestSpec.method as string,
               url: requestSpec.url,
               status: response.status,
-              reason: 'non-2xx',
+              error: 'non 2xx',
             });
             throw new Error('not 2xx');
           }

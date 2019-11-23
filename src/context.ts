@@ -23,6 +23,13 @@ export class Context {
     this.$runner = runner;
     this.$meter = runner.meter;
     this.$logger = runner.logger;
-    this.$axios = axios;
+    this.$axios = this.getAxiosInstance();
+  }
+
+  getAxiosInstance() {
+    const instance = axios.create();
+    instance.defaults.validateStatus = (status) => true;
+    instance.defaults.withCredentials = true;
+    return instance;
   }
 }

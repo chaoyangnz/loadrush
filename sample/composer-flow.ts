@@ -13,7 +13,6 @@ scenario(
   },
   [
     before(async (context: Context) => {
-      // context.$axios.defaults.withCredentials = true;
       context.$axios.defaults.headers.Cookie = `M_J_R_S=${context.env.COMPOSER_COOKIE}`;
     }),
     get({
