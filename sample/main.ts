@@ -1,5 +1,5 @@
 import { runner } from '../src/runner';
 // import './sample';
-import './composer-flow';
+import './scenarios/composer-flow';
 
 runner.sustain(1);

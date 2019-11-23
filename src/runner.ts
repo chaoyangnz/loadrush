@@ -42,6 +42,8 @@ export class Runner {
     const scenario = sample(this.scenarios) as Scenario;
     const context: Context = new Context(runner, vu, scenario);
 
+    this.meter.publish('vu', { active: this.vus.active });
+
     const spinner = ora(
       `∷∷ Scenario: ${scenario.name} 👤 ${vu} 🕐 ${Date.now()}`,
     ).start();

@@ -83,7 +83,7 @@ export function request(requestSpec: RequestSpec): Action {
               method: requestSpec.method as string,
               url: requestSpec.url,
               status: response.status,
-              error: 'assert-failure',
+              error: 'assertion failure',
             });
             throw e;
           }
@@ -101,9 +101,9 @@ export function request(requestSpec: RequestSpec): Action {
               method: requestSpec.method as string,
               url: requestSpec.url,
               status: response.status,
-              error: 'non 2xx',
+              error: 'non 2xx / 3xx',
             });
-            throw new Error('not 2xx');
+            throw new Error(`not 2xx / 3xx: ${response.status}`);
           }
         }
         // if (spec.capture) {

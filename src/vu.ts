@@ -6,6 +6,8 @@ export class Pool {
   rows: number;
   bin: Uint8Array;
 
+  active = 0;
+
   constructor(size: number) {
     this.cols = 8;
     this.shift = 3;
@@ -20,6 +22,7 @@ export class Pool {
     for (let i = 1; i < this.bin.byteLength * 8; ++i) {
       if (this.available(i)) {
         this.flip(i);
+        this.active += 1;
         return i;
       }
     }
@@ -30,6 +33,7 @@ export class Pool {
   out(vu: VU) {
     if (this.busy(vu)) {
       this.flip(vu);
+      this.active -= 1;
     }
   }
 

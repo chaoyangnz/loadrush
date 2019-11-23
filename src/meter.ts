@@ -29,29 +29,34 @@ export class Meter {
 
     if (!this.org || !this.bucket || !this.api) {
       console.warn(
-        'LOADFLUX_INFLUXDB_ORG or LOADFLUX_INFLUXDB_API or LOADFLUX_TEST_ID  is not set',
+        'LOADFLUX_INFLUXDB_ORG or LOADFLUX_INFLUXDB_API or LOADFLUX_TEST_ID is not set',
       );
       process.exit(-1);
     }
     this.client = new Client(this.api, getEnv('LOADFLUX_INFLUXDB_TOKEN', ''));
   }
 
-  publish(measurement: string, fields: KV, tags?: KV, timestamp?: KV) {
+  publish(measurement: string, fields: KV, timestamp?: number, tags?: KV) {
     // const data = 'mem,host=host1 used_percent=23.43234543 1556896326'; // Line protocol string
     const data = this.build(measurement, fields, tags, timestamp);
+    console.log(data);
     this.client.write.create(this.org, this.bucket, data).catch((e) => {
       console.warn('Error occurred when sending metrics', e);
     });
   }
 
   // <measurement>[,<tag_key>=<tag_value>[,<tag_key>=<tag_value>]] <field_key>=<field_value>[,<field_key>=<field_value>] [<timestamp>]
-  private build(measurement: string, fields: KV, tags?: KV, timestamp?: KV) {
+  private build(
+    measurement: string,
+    fields: KV,
+    tags?: KV,
+    timestamp?: number,
+  ) {
     let joinedTags = '';
     if (tags) {
       joinedTags = Object.entries(tags)
         .map(([key, value]) => `${key}=${this.quoteIfNeed(value)}`)
         .join(',');
-      joinedTags = `,${tags}`;
     }
     const extraTags = getEnv('LOADFLUX_INFLUXDB_TAGS', '');
     if (extraTags) {
@@ -63,8 +68,10 @@ export class Meter {
         .map(([key, value]) => `${key}=${this.quoteIfNeed(value)}`)
         .join(',');
     }
-    return `${measurement}${joinedTags} ${joinedFields} ${timestamp ||
-      ''}`.trim();
+    const nanotime = `${Date.now()}000000`;
+    return `${measurement}${
+      joinedTags ? ',' : ''
+    }${joinedTags} ${joinedFields} ${timestamp || nanotime}`.trim();
   }
 
   private quoteIfNeed(value: string | number) {
