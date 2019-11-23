@@ -1,29 +1,35 @@
 import { Action, ActionType } from './action';
-import { Runner, runner } from './runner';
+import { runner } from './runner';
 
 export interface ScenarioSpec {
   name: string;
   weight: number;
 }
 
+interface Flow {
+  before: Action[];
+  after: Action[];
+  steps: Action[];
+}
+
 export class Scenario {
   name: string;
   weight: number;
+  actions: Action[];
 
-  before: Action[] = [];
-  after: Action[] = [];
-  steps: Action[] = [];
-
-  constructor(spec: ScenarioSpec) {
+  constructor(spec: ScenarioSpec, actions: Action[]) {
     this.name = spec.name;
     this.weight = spec.weight;
+    const flow: Flow = { before: [], after: [], steps: [] };
+    flow.steps = actions.filter((action) => action.type === ActionType.STEP);
+    flow.before = actions.filter((action) => action.type === ActionType.BEFORE);
+    flow.after = actions.filter((action) => action.type === ActionType.AFTER);
+    this.actions = [...flow.before, ...flow.steps, ...flow.after];
   }
 }
 
+// register a scenario
 export function scenario(spec: ScenarioSpec, actions: Action[]) {
-  const scenario = new Scenario(spec);
-  scenario.steps = actions.filter((action) => action.type === ActionType.STEP);
-  scenario.before = actions.filter((action) => action.type === ActionType.BEFORE);
-  scenario.after = actions.filter((action) => action.type === ActionType.AFTER);
+  const scenario = new Scenario(spec, actions);
   runner.scenarios.push(scenario);
 }

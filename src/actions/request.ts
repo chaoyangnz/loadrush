@@ -1,7 +1,8 @@
-import { AxiosRequestConfig, AxiosResponse } from 'axios';
+import { cloneDeep } from 'lodash';
 import { Action, ActionType } from '../action';
 import { Context } from '../context';
-import { cloneDeep } from 'lodash';
+import { Request, Response } from '../http';
+import { Logger } from '../log';
 
 export type RequestSpec = {
   url: string;
@@ -9,23 +10,23 @@ export type RequestSpec = {
   // capture?: CaptureCallback;
   beforeRequest?: BeforeRequestCallback;
   afterResponse?: AfterResponseCallback;
-} & AxiosRequestConfig;
+} & Request;
 
 // export type CaptureCallback = (response: AxiosResponse, context: Context) => Promise<void>;
 
 export type ExpectCallback = (
-  response: AxiosResponse,
+  response: Response,
   context: Context,
 ) => Promise<void>;
 
 export type BeforeRequestCallback = (
-  request: AxiosRequestConfig,
+  request: Request,
   context: Context,
 ) => Promise<void>;
 
 export type AfterResponseCallback = (
-  request: AxiosRequestConfig,
-  response: AxiosResponse,
+  request: Request,
+  response: Response,
   context: Context,
 ) => Promise<void>;
 
@@ -34,6 +35,7 @@ export function request(requestSpec: RequestSpec): Action {
     type: ActionType.STEP,
     title: `${requestSpec.method} ${requestSpec.url}`,
     run: async (context: Context) => {
+      const logger = new Logger('loadflux:http');
       const spec = cloneDeep(requestSpec);
       if (!/https?:\/\//.test(spec.url)) {
         spec.url = context.$runner.baseUrl + spec.url;
@@ -42,7 +44,7 @@ export function request(requestSpec: RequestSpec): Action {
         try {
           await spec.beforeRequest(spec, context);
         } catch (e) {
-          context.$logger(
+          logger.log(
             `Error occurred in beforeRequest of ${context.$scenario.name} -> ${spec.method} / ${spec.url}`,
             e,
           );
@@ -51,7 +53,7 @@ export function request(requestSpec: RequestSpec): Action {
       }
       let response;
       try {
-        response = await context.$axios.request({
+        response = await context.$http.request({
           url: spec.url,
           method: spec.method,
           data: spec.data,
@@ -113,7 +115,7 @@ export function request(requestSpec: RequestSpec): Action {
           try {
             await spec.afterResponse(spec, response, context);
           } catch (e) {
-            context.$logger(
+            logger.log(
               `Error occurred in afterResponse of ${context.$scenario.name} -> ${spec.method} / ${spec.url}`,
               e,
             );

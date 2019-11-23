@@ -1,6 +1,6 @@
 export type VU = number;
 
-export class Pool {
+export class Volunteers {
   cols: number;
   shift: number;
   rows: number;
@@ -18,7 +18,7 @@ export class Pool {
     this.clear();
   }
 
-  in(): VU {
+  checkin(): VU {
     for (let i = 1; i < this.bin.byteLength * 8; ++i) {
       if (this.available(i)) {
         this.flip(i);
@@ -30,7 +30,7 @@ export class Pool {
     process.exit(-1);
   }
 
-  out(vu: VU) {
+  checkout(vu: VU) {
     if (this.busy(vu)) {
       this.flip(vu);
       this.active -= 1;

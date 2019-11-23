@@ -1,17 +1,13 @@
 import 'core-js/features/promise/finally';
 import dotenv from 'dotenv';
-import debug, { Debugger } from 'debug';
 import { Action } from './action';
+import { Logger, Reporter } from './log';
 import { Meter } from './meter';
 import { getEnv } from './util';
-import { Pool } from './vu';
+import { Volunteers } from './vu';
 import { Context } from './context';
 import { Scenario } from './scenario';
 import { sample } from 'lodash';
-import ora from 'ora';
-
-// load .env env vars
-dotenv.config();
 
 export class Runner {
   baseUrl: string;
@@ -19,17 +15,18 @@ export class Runner {
   env: { [key: string]: string | number } = {};
 
   scenarios: Scenario[] = [];
-  vus: Pool;
+  vus: Volunteers;
   meter: Meter;
   duration: number;
 
-  logger: Debugger = debug('loadflux:trace');
-
   constructor() {
+    // load .env env vars
+    dotenv.config();
+
     this.baseUrl = getEnv('LOADFLUX_BASE_URL', '');
     this.poolSize = getEnv<number>('LOADFLUX_VU_POOL_SIZE', 10_000);
     this.duration = getEnv<number>('LOADFLUX_DURATION', 600);
-    this.vus = new Pool(this.poolSize);
+    this.vus = new Volunteers(this.poolSize);
     this.meter = new Meter();
     for (const [key, value] of Object.entries(process.env)) {
       this.env[key] = getEnv(key, '');
@@ -37,32 +34,30 @@ export class Runner {
   }
 
   // attach a vu to a scenario
-  private async executeScenario() {
-    const vu = this.vus.in();
+  private async fly() {
+    const vu = this.vus.checkin();
     const scenario = sample(this.scenarios) as Scenario;
     const context: Context = new Context(runner, vu, scenario);
 
     this.meter.publish('vu', { active: this.vus.active });
 
-    const spinner = ora(
+    const reporter = new Reporter(
       `∷∷ Scenario: ${scenario.name} 👤 ${vu} 🕐 ${Date.now()}`,
     ).start();
+
     try {
-      await waterfall(
-        [...scenario.before, ...scenario.steps, ...scenario.after],
-        context,
-      );
-      spinner.succeed();
+      await waterfall(scenario.actions, context);
+      reporter.succeed();
     } catch (e) {
-      spinner.fail();
+      reporter.fail();
     } finally {
-      this.vus.out(vu);
+      this.vus.checkout(vu);
     }
   }
 
   // a vu exits and another continues
   private relay() {
-    this.executeScenario().finally(() => {
+    this.fly().finally(() => {
       this.relay();
     });
   }
@@ -70,7 +65,7 @@ export class Runner {
   // arrive multiple vus together
   private arrive(size: number) {
     for (let i = 0; i < size; ++i) {
-      this.executeScenario();
+      this.fly();
     }
   }
 
@@ -91,13 +86,17 @@ export class Runner {
 
 export async function waterfall(actions: Action[], context: Context) {
   for (const action of actions) {
-    const spinner = ora({ text: action.title, prefixText: '  ' }).start();
+    const reporter = new Reporter({
+      text: action.title,
+      prefixText: '  ',
+    }).start();
+
     try {
       await action.run(context);
-      spinner.succeed();
+      reporter.succeed();
     } catch (e) {
-      context.$logger(e);
-      spinner.fail();
+      reporter.fail();
+      new Logger('loadflux:action').log(e);
       throw e;
     }
   }

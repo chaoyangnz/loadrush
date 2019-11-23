@@ -1,6 +1,7 @@
 // @ts-ignore
 import { XMLHttpRequest } from 'xmlhttprequest';
 import { Client } from '@influxdata/influx';
+import { Logger } from './log';
 import { getEnv } from './util';
 
 interface KV {
@@ -15,6 +16,7 @@ export class Meter {
   org: string;
   bucket: string;
   api: string;
+  logger = new Logger('loadflux:meter');
 
   constructor() {
     this.org = getEnv('LOADFLUX_INFLUXDB_ORG', '');
@@ -39,7 +41,7 @@ export class Meter {
   publish(measurement: string, fields: KV, timestamp?: number, tags?: KV) {
     // const data = 'mem,host=host1 used_percent=23.43234543 1556896326'; // Line protocol string
     const data = this.build(measurement, fields, tags, timestamp);
-    console.log(data);
+    this.logger.log(data);
     this.client.write.create(this.org, this.bucket, data).catch((e) => {
       console.warn('Error occurred when sending metrics', e);
     });

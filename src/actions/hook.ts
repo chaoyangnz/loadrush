@@ -1,5 +1,6 @@
 import { Action, ActionType } from '../action';
 import { Context } from '../context';
+import { Logger } from '../log';
 
 export type Callback = (context: Context) => Promise<void>;
 
@@ -21,7 +22,10 @@ export function after(callback: Callback): Action {
       try {
         await callback(context);
       } catch (e) {
-        context.$logger(`Error occurred at after hook of ${context.$scenario.name}`, e);
+        new Logger('loadflux:before').log(
+          `Error occurred at after hook of ${context.$scenario.name}`,
+          e,
+        );
       }
     },
   };

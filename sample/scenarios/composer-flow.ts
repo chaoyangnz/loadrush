@@ -1,9 +1,4 @@
-import { before } from '../../src/actions/hook';
-import { get, post } from '../../src/actions/http';
-import { log } from '../../src/actions/log';
-import { think } from '../../src/actions/think';
-import { Context } from '../../src/context';
-import { scenario } from '../../src/scenario';
+import { before, get, log, post, think, Context, scenario } from '../../src';
 import { createStoryPayload } from './fixtures/create-story';
 
 scenario(
@@ -13,12 +8,12 @@ scenario(
   },
   [
     before(async (context: Context) => {
-      context.$axios.defaults.headers.Cookie = `M_J_R_S=${context.env.COMPOSER_COOKIE}`;
+      context.$http.cookie('M_J_R_S', context.env.COMPOSER_COOKIE as string);
     }),
     get({
       url: '/',
     }),
-    log('Logged in the landing page'),
+    log('Logged checkin the landing page'),
     think(2000),
     post({
       url: '/api/stories',

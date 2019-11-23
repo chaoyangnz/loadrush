@@ -1,8 +1,4 @@
-import { before } from '../../src/actions/hook';
-import { get } from '../../src/actions/http';
-import { log } from '../../src/actions/log';
-import { think } from '../../src/actions/think';
-import { scenario } from '../../src/scenario';
+import { before, get, log, post, think, Context, scenario } from '../../src';
 
 scenario({ name: 'story flow', weight: 1 }, [
   before(async (context) => {}),

@@ -32,6 +32,7 @@
     "prefer-template": true,
     "prettier": true,
     "switch-default": true,
+    "no-console": false,
     "variable-name": [true, "allow-leading-underscore", "ban-keywords", "check-format", "allow-pascal-case"]
   }
 }
