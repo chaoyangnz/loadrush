@@ -1,21 +1,10 @@
+import { Action, ActionType } from './action';
 import { Runner, runner } from './runner';
-import { Debugger } from 'debug';
-import EventEmitter from 'eventemitter3';
-import Listr from 'listr';
 
 export interface ScenarioSpec {
   name: string;
   weight: number;
 }
-export interface Context {
-  vars: { [key: string]: any };
-  $scenario: Scenario;
-  $runner: Runner;
-  $vu: number;
-  $emitter: EventEmitter;
-  $logger: Debugger;
-}
-export type Action = ((context: Context) => Promise<void>) & { type: 'action' | 'before' | 'after'; message: string };
 
 export class Scenario {
   name: string;
@@ -23,17 +12,18 @@ export class Scenario {
 
   before: Action[] = [];
   after: Action[] = [];
-  actions: Action[] = [];
+  steps: Action[] = [];
 
   constructor(spec: ScenarioSpec) {
     this.name = spec.name;
     this.weight = spec.weight;
   }
 }
+
 export function scenario(spec: ScenarioSpec, actions: Action[]) {
   const scenario = new Scenario(spec);
-  scenario.actions = actions.filter((action) => action.type === 'action');
-  scenario.before = actions.filter((action) => action.type === 'before');
-  scenario.after = actions.filter((action) => action.type === 'after');
+  scenario.steps = actions.filter((action) => action.type === ActionType.STEP);
+  scenario.before = actions.filter((action) => action.type === ActionType.BEFORE);
+  scenario.after = actions.filter((action) => action.type === ActionType.AFTER);
   runner.scenarios.push(scenario);
 }

@@ -1,24 +1,33 @@
 import 'core-js/features/promise/finally';
-
+import dotenv from 'dotenv';
 import debug, { Debugger } from 'debug';
-import Listr from 'listr';
-import { Bitmap } from './bitmap';
-import { Action, Context, Scenario } from './scenario';
+import { Action } from './action';
+import { getEnv } from './util';
+import { Pool } from './vu';
+import { Context } from './context';
+import { Scenario } from './scenario';
 import { sample } from 'lodash';
 import EventEmitter from 'eventemitter3';
+import ora from 'ora';
+
+// load .env env vars
+dotenv.config();
 
 export class Runner {
-  vuPoolSize = parseInt(process.env.LOADFLUX_VU_POOL_SIZE || '10000', 10);
+  target = getEnv('LOADFLUX_BASE_URL', '');
+  poolSize = getEnv<number>('LOADFLUX_VU_POOL_SIZE', 10_000);
 
   scenarios: Scenario[] = [];
-  vus: Bitmap = new Bitmap(this.vuPoolSize);
+  vus: Pool = new Pool(this.poolSize);
   emitter: EventEmitter = new EventEmitter();
-  duration = parseInt(process.env.LOADFLUX_DURATION || '600', 10);
+  duration = getEnv<number>('LOADFLUX_DURATION', 600);
 
   logger: Debugger = debug('loadflux:trace');
 
+  constructor() {}
+
   // attach a vu to a scenario
-  private async run() {
+  private async executeScenario() {
     const vu = this.vus.in();
     const scenario = sample(this.scenarios);
     if (vu === undefined) {
@@ -26,37 +35,25 @@ export class Runner {
       process.exit(-1);
     }
     if (scenario === undefined) {
-      console.warn('You should import your scenario definition');
+      console.warn('You should import at least one of your scenario definitions');
       process.exit(-1);
     }
-    const context: Context = {
-      vars: {},
-      $vu: vu,
-      $scenario: scenario,
-      $runner: runner,
-      $emitter: runner.emitter,
-      $logger: runner.logger,
-    };
-    const promises = [...scenario.before, ...scenario.actions, ...scenario.after].map((action: Action) => ({
-      message: action.message,
-      promise: action(context),
-    }));
-    const listrTasks = [
-      { title: `∵ Scenario: ${scenario.name} ${Date.now()}`, task: () => {} },
-      ...promises.map((item) => ({
-        title: item.message,
-        task: () => item.promise,
-      })),
-    ];
-    new Listr(listrTasks).run();
-    return Promise.all(promises.map((item) => item.promise)).finally(() => {
+    const context: Context = new Context(runner, vu, scenario);
+
+    const spinner = ora(`∷∷ Scenario: ${scenario.name} 👤 ${vu} 🕐 ${Date.now()}`).start();
+    try {
+      await waterfall([...scenario.before, ...scenario.steps, ...scenario.after], context);
+    } catch (e) {
+      spinner.fail();
+    } finally {
       this.vus.out(vu);
-    });
+    }
+    spinner.succeed();
   }
 
   // a vu exits and another continues
   private relay() {
-    this.run().finally(() => {
+    this.executeScenario().finally(() => {
       this.relay();
     });
   }
@@ -64,22 +61,36 @@ export class Runner {
   // arrive multiple vus together
   private arrive(size: number) {
     for (let i = 0; i < size; ++i) {
-      this.run();
+      this.executeScenario();
     }
   }
 
   // constant load at one time
-  constantLoad(size: number) {
+  sustain(size: number) {
     for (let i = 0; i < size; ++i) {
       this.relay();
     }
   }
 
   // ramp up
-  rampLoad(rate: number) {
+  rampUp(rate: number) {
     setTimeout(() => {
       this.arrive(rate);
     }, 1_000);
+  }
+}
+
+export async function waterfall(actions: Action[], context: Context) {
+  for (const action of actions) {
+    const spinner = ora({ text: action.title, prefixText: '  ' });
+    spinner.start();
+    try {
+      await action.run(context);
+    } catch (e) {
+      context.$logger(e);
+      spinner.fail();
+    }
+    spinner.succeed();
   }
 }
 

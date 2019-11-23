@@ -1,8 +1,10 @@
-import { Action, Context } from '../scenario';
+import { Action, ActionType } from '../action';
+import { Context } from '../context';
 
 export function log(message: string): Action {
-  const action: Action = async (context: Context) => {};
-  action.type = 'action';
-  action.message = message;
-  return action;
+  return {
+    type: ActionType.STEP,
+    title: message,
+    run: async (context: Context) => {},
+  };
 }

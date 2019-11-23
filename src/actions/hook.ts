@@ -1,25 +1,28 @@
-import { Action, Context } from '../scenario';
+import { Action, ActionType } from '../action';
+import { Context } from '../context';
 
 export type Callback = (context: Context) => Promise<void>;
 
 export function before(callback: Callback): Action {
-  const action: Action = async (context: Context) => {
-    await callback(context);
+  return {
+    type: ActionType.BEFORE,
+    title: 'before',
+    run: async (context: Context) => {
+      await callback(context);
+    },
   };
-  action.type = 'before';
-  action.message = 'before';
-  return action;
 }
 
 export function after(callback: Callback): Action {
-  const action: Action = async (context: Context) => {
-    try {
-      await callback(context);
-    } catch (e) {
-      context.$logger(`Error occurred at after hook of ${context.$scenario.name}`, e);
-    }
+  return {
+    type: ActionType.AFTER,
+    title: 'after',
+    run: async (context: Context) => {
+      try {
+        await callback(context);
+      } catch (e) {
+        context.$logger(`Error occurred at after hook of ${context.$scenario.name}`, e);
+      }
+    },
   };
-  action.type = 'after';
-  action.message = 'after';
-  return action;
 }

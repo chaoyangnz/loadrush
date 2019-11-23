@@ -1,4 +1,6 @@
-export class Bitmap {
+export type VU = number;
+
+export class Pool {
   cols: number;
   shift: number;
   rows: number;
@@ -10,29 +12,41 @@ export class Bitmap {
     this.rows = (size >> this.shift) + 1;
     const buf: ArrayBuffer = new ArrayBuffer(this.rows);
     this.bin = new Uint8Array(buf);
+    // set all available
+    this.clear();
   }
 
   in() {
-    for (let i = 0; i < this.bin.byteLength * 8; ++i) {
-      if (!this.get(i)) {
+    for (let i = 1; i < this.bin.byteLength * 8; ++i) {
+      if (this.available(i)) {
         this.flip(i);
         return i;
       }
     }
   }
 
-  out(vu: number) {
-    this.flip(vu);
+  out(vu: VU) {
+    if (this.busy(vu)) {
+      this.flip(vu);
+    }
   }
 
-  get(offset: number) {
+  available(vu: VU) {
+    return !this.busy(vu);
+  }
+
+  busy(vu: VU) {
+    return this.get(vu);
+  }
+
+  private get(offset: number) {
     const row = offset >> this.shift;
     const col = offset % this.cols;
     const bit = 1 << col;
     return (this.bin[row] & bit) > 0;
   }
 
-  set(offset: number, bool: boolean) {
+  private set(offset: number, bool: boolean) {
     const row = offset >> this.shift;
     const col = offset % this.cols;
     let bit = 1 << col;
@@ -44,20 +58,20 @@ export class Bitmap {
     }
   }
 
-  flip(offset: number) {
+  private flip(offset: number) {
     const row = Math.floor(offset / this.cols);
     const col = offset % this.cols;
     const bit = 1 << col;
     this.bin[row] ^= bit;
   }
 
-  fill() {
+  private fill() {
     for (let i = 0; i < this.rows; i++) {
       this.bin[i] = 255;
     }
   }
 
-  clear() {
+  private clear() {
     for (let i = 0; i < this.rows; i++) {
       this.bin[i] = 0;
     }

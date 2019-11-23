@@ -1,12 +1,14 @@
-import { Action, Context } from '../scenario';
+import { Action, ActionType } from '../action';
+import { Context } from '../context';
 
 export function think(ms: number): Action {
-  const action: Action = async (context: Context) => {
-    return new Promise<void>((resolve, reject) => {
-      setTimeout(resolve, ms);
-    });
+  return {
+    type: ActionType.STEP,
+    title: '.',
+    run: async (context: Context) => {
+      return new Promise<void>((resolve, reject) => {
+        setTimeout(resolve, ms);
+      });
+    },
   };
-  action.type = 'action';
-  action.message = '.';
-  return action;
 }

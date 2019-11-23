@@ -1,7 +1,9 @@
-import { Action, Context } from '../scenario';
 import axios, { AxiosRequestConfig, AxiosResponse } from 'axios';
+import { Action, ActionType } from '../action';
+import { Context } from '../context';
+import { cloneDeep } from 'lodash';
 
-export type HttpSpec = {
+export type RequestSpec = {
   url: string;
   expect?: ExpectCallback;
   // capture?: CaptureCallback;
@@ -13,82 +15,94 @@ export type HttpSpec = {
 
 export type ExpectCallback = (response: AxiosResponse, context: Context) => Promise<void>;
 
-export type BeforeRequestCallback = (request: HttpSpec, context: Context) => Promise<void>;
+export type BeforeRequestCallback = (request: AxiosRequestConfig, context: Context) => Promise<void>;
 
-export type AfterResponseCallback = (request: HttpSpec, response: AxiosResponse, context: Context) => Promise<void>;
+export type AfterResponseCallback = (
+  request: AxiosRequestConfig,
+  response: AxiosResponse,
+  context: Context,
+) => Promise<void>;
 
-function request(spec: HttpSpec): Action {
-  const action: Action = async (context: Context) => {
-    context.$logger('start action');
-    if (spec.beforeRequest) {
-      try {
-        await spec.beforeRequest(spec, context);
-      } catch (e) {
-        context.$logger(
-          `Error occurred in beforeRequest of ${context.$scenario.name} -> ${spec.method} / ${spec.url}`,
-          e,
-        );
+export function request(requestSpec: RequestSpec): Action {
+  return {
+    type: ActionType.STEP,
+    title: `${requestSpec.method} ${requestSpec.url}`,
+    run: async (context: Context) => {
+      const spec = cloneDeep(requestSpec);
+      if (!/https?:\/\//.test(spec.url)) {
+        spec.url = context.$runner.target + spec.url;
       }
-    }
-    let response;
-    try {
-      response = await axios.request({
-        url: spec.url,
-        method: spec.method,
-        data: spec.data,
-        headers: spec.headers,
-      });
-    } catch (e) {
-      context.$emitter.emit('http_err');
-      return;
-    }
-    // received response
-    if (response) {
-      if (spec.expect) {
+      if (spec.beforeRequest) {
         try {
-          await spec.expect(response, context);
-          context.$emitter.emit('http_ok');
-        } catch (e) {
-          context.$emitter.emit('http_ko');
-        }
-      } else {
-        if (response.status < 400) {
-          context.$emitter.emit('http_ok');
-        } else {
-          context.$emitter.emit('http_ko');
-        }
-      }
-      // if (spec.capture) {
-      //   await spec.capture(response, context);
-      // }
-      if (spec.afterResponse) {
-        try {
-          await spec.afterResponse(spec, response, context);
+          await spec.beforeRequest(spec, context);
         } catch (e) {
           context.$logger(
-            `Error occurred in afterResponse of ${context.$scenario.name} -> ${spec.method} / ${spec.url}`,
+            `Error occurred in beforeRequest of ${context.$scenario.name} -> ${spec.method} / ${spec.url}`,
             e,
           );
+          throw e;
         }
       }
-    }
+      let response;
+      try {
+        response = await axios.request({
+          url: spec.url,
+          method: spec.method,
+          data: spec.data,
+          headers: spec.headers,
+        });
+      } catch (e) {
+        context.$emitter.emit('http_err');
+        throw e;
+      }
+      // received response
+      if (response) {
+        if (spec.expect) {
+          try {
+            await spec.expect(response, context);
+            context.$emitter.emit('http_ok');
+          } catch (e) {
+            context.$emitter.emit('http_ko');
+            throw e;
+          }
+        } else {
+          if (response.status < 400) {
+            context.$emitter.emit('http_ok');
+          } else {
+            context.$emitter.emit('http_ko');
+            throw new Error('not 2xx');
+          }
+        }
+        // if (spec.capture) {
+        //   await spec.capture(response, context);
+        // }
+        if (spec.afterResponse) {
+          try {
+            await spec.afterResponse(spec, response, context);
+          } catch (e) {
+            context.$logger(
+              `Error occurred in afterResponse of ${context.$scenario.name} -> ${spec.method} / ${spec.url}`,
+              e,
+            );
+            throw e;
+          }
+        }
+      }
+    },
   };
-  action.type = 'action';
-  action.message = `${spec.method} ${spec.url}`;
-  return action;
 }
 
-export function get(spec: Omit<HttpSpec, 'body'>): Action {
+export function get(spec: Omit<RequestSpec, 'data'>): Action {
   spec.method = 'GET';
   return request(spec);
 }
 
-export function post(spec: HttpSpec): Action {
+export function post(spec: RequestSpec): Action {
   spec.method = 'POST';
   return request(spec);
 }
 
-export function put(spec: HttpSpec): Action {
+export function put(spec: RequestSpec): Action {
   spec.method = 'PUT';
   return request(spec);
 }
