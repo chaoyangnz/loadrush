@@ -1,3 +1,8 @@
+![](https://img.shields.io/npm/v/loadflux?color=green)
+![](https://img.shields.io/github/package-json/v/chaoyangnz/loadflux?color=blue)
+![](https://img.shields.io/github/license/chaoyangnz/loadflux?color=orange)
+![](https://github.com/chaoyangnz/loadflux/workflows/build/badge.svg)
+
 # LOADFLUX
 
 ## What is it?
