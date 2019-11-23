@@ -2,12 +2,12 @@ import 'core-js/features/promise/finally';
 import dotenv from 'dotenv';
 import debug, { Debugger } from 'debug';
 import { Action } from './action';
+import { Meter } from './meter';
 import { getEnv } from './util';
 import { Pool } from './vu';
 import { Context } from './context';
 import { Scenario } from './scenario';
 import { sample } from 'lodash';
-import EventEmitter from 'eventemitter3';
 import ora from 'ora';
 
 // load .env env vars
@@ -20,7 +20,7 @@ export class Runner {
 
   scenarios: Scenario[] = [];
   vus: Pool;
-  emitter: EventEmitter;
+  meter: Meter;
   duration: number;
 
   logger: Debugger = debug('loadflux:trace');
@@ -30,7 +30,7 @@ export class Runner {
     this.poolSize = getEnv<number>('LOADFLUX_VU_POOL_SIZE', 10_000);
     this.duration = getEnv<number>('LOADFLUX_DURATION', 600);
     this.vus = new Pool(this.poolSize);
-    this.emitter = new EventEmitter();
+    this.meter = new Meter();
     for (const [key, value] of Object.entries(process.env)) {
       this.env[key] = getEnv(key, '');
     }
@@ -42,9 +42,14 @@ export class Runner {
     const scenario = sample(this.scenarios) as Scenario;
     const context: Context = new Context(runner, vu, scenario);
 
-    const spinner = ora(`∷∷ Scenario: ${scenario.name} 👤 ${vu} 🕐 ${Date.now()}`).start();
+    const spinner = ora(
+      `∷∷ Scenario: ${scenario.name} 👤 ${vu} 🕐 ${Date.now()}`,
+    ).start();
     try {
-      await waterfall([...scenario.before, ...scenario.steps, ...scenario.after], context);
+      await waterfall(
+        [...scenario.before, ...scenario.steps, ...scenario.after],
+        context,
+      );
       spinner.succeed();
     } catch (e) {
       spinner.fail();

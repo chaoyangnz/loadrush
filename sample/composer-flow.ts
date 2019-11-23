@@ -35,7 +35,9 @@ scenario(
 function createStoryPayload() {
   return {
     assetSubType: 'generic',
-    headline: `Loadflux: ${faker.lorem.sentence(4)} @ ${new Date().toLocaleString()}`,
+    headline: `Loadflux: ${faker.lorem.sentence(
+      4,
+    )} @ ${new Date().toLocaleString()}`,
     body: [
       {
         text: {

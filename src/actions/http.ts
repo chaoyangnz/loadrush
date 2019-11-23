@@ -13,9 +13,15 @@ export type RequestSpec = {
 
 // export type CaptureCallback = (response: AxiosResponse, context: Context) => Promise<void>;
 
-export type ExpectCallback = (response: AxiosResponse, context: Context) => Promise<void>;
+export type ExpectCallback = (
+  response: AxiosResponse,
+  context: Context,
+) => Promise<void>;
 
-export type BeforeRequestCallback = (request: AxiosRequestConfig, context: Context) => Promise<void>;
+export type BeforeRequestCallback = (
+  request: AxiosRequestConfig,
+  context: Context,
+) => Promise<void>;
 
 export type AfterResponseCallback = (
   request: AxiosRequestConfig,
@@ -52,7 +58,12 @@ export function request(requestSpec: RequestSpec): Action {
           headers: spec.headers,
         });
       } catch (e) {
-        context.$emitter.emit('http_err');
+        context.$meter.publish('http_err', {
+          count: 1,
+          method: requestSpec.method as string,
+          url: requestSpec.url,
+          err: e.message.replace(/\s+/, '-'),
+        });
         throw e;
       }
       // received response
@@ -60,16 +71,38 @@ export function request(requestSpec: RequestSpec): Action {
         if (spec.expect) {
           try {
             await spec.expect(response, context);
-            context.$emitter.emit('http_ok');
+            context.$meter.publish('http_ok', {
+              count: 1,
+              method: requestSpec.method as string,
+              url: requestSpec.url,
+              status: response.status,
+            });
           } catch (e) {
-            context.$emitter.emit('http_ko');
+            context.$meter.publish('http_ko', {
+              count: 1,
+              method: requestSpec.method as string,
+              url: requestSpec.url,
+              status: response.status,
+              reason: 'assert-failure',
+            });
             throw e;
           }
         } else {
           if (response.status < 400) {
-            context.$emitter.emit('http_ok');
+            context.$meter.publish('http_ok', {
+              count: 1,
+              method: requestSpec.method as string,
+              url: requestSpec.url,
+              status: response.status,
+            });
           } else {
-            context.$emitter.emit('http_ko');
+            context.$meter.publish('http_ko', {
+              count: 1,
+              method: requestSpec.method as string,
+              url: requestSpec.url,
+              status: response.status,
+              reason: 'non-2xx',
+            });
             throw new Error('not 2xx');
           }
         }

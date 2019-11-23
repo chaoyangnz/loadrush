@@ -1,6 +1,6 @@
 import axios, { AxiosInstance } from 'axios';
 import { Debugger } from 'debug';
-import EventEmitter from 'eventemitter3';
+import { Meter } from './meter';
 import { Runner } from './runner';
 import { Scenario } from './scenario';
 import { VU } from './vu';
@@ -11,7 +11,7 @@ export class Context {
   $scenario: Scenario;
   $runner: Runner;
   $vu: VU;
-  $emitter: EventEmitter;
+  $meter: Meter;
   $logger: Debugger;
   $axios: AxiosInstance;
 
@@ -21,7 +21,7 @@ export class Context {
     this.$vu = vu;
     this.$scenario = scenario;
     this.$runner = runner;
-    this.$emitter = runner.emitter;
+    this.$meter = runner.meter;
     this.$logger = runner.logger;
     this.$axios = axios;
   }

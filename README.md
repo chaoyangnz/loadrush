@@ -17,7 +17,18 @@ When one user exits, another user will be arriving to sustain the load
 - ramp up the load until you know the extrame capability of your infrastructure and user experience, for example, 
 you can ramp up 50 new users per second, then sometime your application will crash and have no response.
 
+### Scenario and Action logs 
+
 ![](screenshot.gif)
+
+### Metrics
+
+We integrate [InfluxDB](https://www.influxdata.com/) and send real-time measurements to the cloud, so we can do analytics later. 
+Some basic metrics like requests/success/failure count, mean response time, RPS etc can be monitored in its platform.
+We choose InfluxDB as it has an intuitive UI and easy to integrate. But we will add more integrations to other monitoring platforms in the future.
+
+![](https://i.imgur.com/yEh9lpc.gif)
+
 ## Roadmap
 
 - collect statistical data to help analytics and build metrics to visualise
@@ -33,6 +44,7 @@ testing tools:
 - [`Cypress`](https://github.com/StuffNZ/stuff-composer-load-test): generate load with e2e testing and run in a browser for each virtual user, but it's slow and prone to crash sometimes
 - [`Artillery`](https://github.com/StuffNZ/stuff-composer-load-test-artillery): ramp up users per second, but not support the case - sustain a constant load
 - `K6`: customised runtime, not compatible with existing nodejs modules and 3rd-party library
+- `Gatling`: we do use it to do the performance testing for our Java application, but we think the scripting in Scala is not our flavour.
 
 
 
