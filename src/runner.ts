@@ -43,12 +43,12 @@ export class Runner {
     const spinner = ora(`∷∷ Scenario: ${scenario.name} 👤 ${vu} 🕐 ${Date.now()}`).start();
     try {
       await waterfall([...scenario.before, ...scenario.steps, ...scenario.after], context);
+      spinner.succeed();
     } catch (e) {
       spinner.fail();
     } finally {
       this.vus.out(vu);
     }
-    spinner.succeed();
   }
 
   // a vu exits and another continues
@@ -82,15 +82,15 @@ export class Runner {
 
 export async function waterfall(actions: Action[], context: Context) {
   for (const action of actions) {
-    const spinner = ora({ text: action.title, prefixText: '  ' });
-    spinner.start();
+    const spinner = ora({ text: action.title, prefixText: '  ' }).start();
     try {
       await action.run(context);
+      spinner.succeed();
     } catch (e) {
       context.$logger(e);
       spinner.fail();
+      throw e;
     }
-    spinner.succeed();
   }
 }
 
