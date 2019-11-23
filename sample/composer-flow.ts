@@ -1,5 +1,6 @@
 import { before } from '../src/actions/hook';
 import { get, post } from '../src/actions/http';
+import { log } from '../src/actions/log';
 import { think } from '../src/actions/think';
 import { Context } from '../src/context';
 import { scenario } from '../src/scenario';
@@ -18,6 +19,7 @@ scenario(
     get({
       url: '/',
     }),
+    log('Logged in the landing page'),
     think(2000),
     post({
       url: '/api/stories',
@@ -26,6 +28,7 @@ scenario(
         // console.log(res.data);
       },
     }),
+    log('Created a new story'),
   ],
 );
 

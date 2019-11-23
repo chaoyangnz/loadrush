@@ -12,6 +12,7 @@ When one user exits, another user will be arriving to sustain the load
 - ramp up the load until you know the extrame capability of your infrastructure and user experience, for example, 
 you can ramp up 50 new users per second, then sometime your application will crash and have no response.
 
+![](screencast.gif)
 ## Roadmap
 
 - collect statistical data to help analytics and build metrics to visualise
