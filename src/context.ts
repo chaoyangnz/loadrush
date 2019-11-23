@@ -1,9 +1,8 @@
 import axios, { AxiosInstance } from 'axios';
 import { Debugger } from 'debug';
 import EventEmitter from 'eventemitter3';
-import { runner, Runner } from './runner';
+import { Runner } from './runner';
 import { Scenario } from './scenario';
-import { getEnv } from './util';
 import { VU } from './vu';
 
 export class Context {
@@ -11,16 +10,13 @@ export class Context {
   vars: { [key: string]: any };
   $scenario: Scenario;
   $runner: Runner;
-  $vu: number;
+  $vu: VU;
   $emitter: EventEmitter;
   $logger: Debugger;
   $axios: AxiosInstance;
 
   constructor(runner: Runner, vu: VU, scenario: Scenario) {
-    this.env = {};
-    for (const [key, value] of Object.entries(process.env)) {
-      this.env[key] = getEnv(key, '');
-    }
+    this.env = runner.env;
     this.vars = {};
     this.$vu = vu;
     this.$scenario = scenario;

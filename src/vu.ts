@@ -16,13 +16,15 @@ export class Pool {
     this.clear();
   }
 
-  in() {
+  in(): VU {
     for (let i = 1; i < this.bin.byteLength * 8; ++i) {
       if (this.available(i)) {
         this.flip(i);
         return i;
       }
     }
+    console.warn('VU pool is too small or you set too high load');
+    process.exit(-1);
   }
 
   out(vu: VU) {

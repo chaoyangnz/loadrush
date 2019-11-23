@@ -30,7 +30,7 @@ export function request(requestSpec: RequestSpec): Action {
     run: async (context: Context) => {
       const spec = cloneDeep(requestSpec);
       if (!/https?:\/\//.test(spec.url)) {
-        spec.url = context.$runner.target + spec.url;
+        spec.url = context.$runner.baseUrl + spec.url;
       }
       if (spec.beforeRequest) {
         try {
