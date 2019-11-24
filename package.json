@@ -4,7 +4,7 @@
   "description": "Simple and flexible load testing tool by developers and for developers",
   "author": "Chao Yang <chaoyang.nz@gmail.com>",
   "license": "MIT",
-  "repository": "git+https://github.com/chaoyangnz/loadflux",
+  "repository": "git+https://github.com/loadflux/loadflux",
   "main": "dist/index.js",
   "types": "dist/index.d.ts",
   "scripts": {

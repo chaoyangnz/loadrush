@@ -1,7 +1,7 @@
 ![](https://img.shields.io/npm/v/loadflux?color=green&style=flat-square)
-![](https://img.shields.io/github/package-json/v/chaoyangnz/loadflux?color=blue&style=flat-square)
-![](https://img.shields.io/github/license/chaoyangnz/loadflux?color=orange&style=flat-square)
-![](https://github.com/chaoyangnz/loadflux/workflows/build/badge.svg)
+![](https://img.shields.io/github/package-json/v/loadflux/loadflux?color=blue&style=flat-square)
+![](https://img.shields.io/github/license/loadflux/loadflux?color=orange&style=flat-square)
+![](https://github.com/loadflux/loadflux/workflows/build/badge.svg)
 
 # LOADFLUX
 
@@ -54,8 +54,8 @@ Just like any other NodeJS application, run it using `node` command line. `Loadf
 
 Environment Variables:
 - General
-    - `LOADFLUX_VU_POOL_SIZE`: define how many virtual users (`VU`) how many users can be available at maximum. These users are volunteers, which does
-    not necessarily mean all of them will participate the execution of your scenarios. You decide how many virtual users are planned and checked in/out by your testing strategy.
+    - `LOADFLUX_VU_POOL_SIZE`: define the maximum of virtual users can be available. These users are volunteers, which does
+    not necessarily mean all of them will participate in the execution of your scenarios. You decide how many virtual users are planned by your testing strategy.
     - `LOADFLUX_DURATION`: how long you plan to run your load testing.
     - `LOADFLUX_BASE_URL`: the base url of your application. If you don't set, you have to use absolute URL in your request action.
     - `LOADFLUX_TEST_ID`: the test id (16 chars at most) used for different iteration of your testing. Default: current timestamp since unix epoch.
@@ -84,11 +84,12 @@ If you like, build a dashboard and keep monitoring. All these things are dependi
 
 ## Roadmap
 
-- collect statistical data to help analytics and build metrics to visualise
-- real-time charts and 360° view of virtual users activities
-- complex load phases: multiple phases for different load strategy and duration
-- [`loadflux recorder`](https://github.com/StuffNZ/loadflux-recorder) Chrome extension to record the scenario and generate scenario file automatically 
-- distributed load testing
+- [x] collect statistical data to help analytics and build metrics to visualise and real-time charts and 360° view of virtual users activities
+- [ ] complex load phases: multiple phases for different load strategy and duration
+- [ ] distributed load testing
+- [ ] [`loadflux recorder`](https://github.com/loadflux/loadflux-recorder) Chrome extension to record the scenario and generate scenario file automatically 
+- [ ] [`loadflux webbench`](https://github.com/loadflux/loadflux-webbench) Browser-side performance/load testing tool which simulates the web browser users 
+and drives browsers to test the comprehensive performance of your application.
 
 ## Story behind it
 
