@@ -3,6 +3,7 @@ import { Action, ActionType } from '../action';
 import { Context } from '../context';
 import { Request, Response } from '../http';
 import { Logger } from '../log';
+import { ErrorFields, FailureFields, Metrics, SuccessFields } from '../metrics';
 
 export type RequestSpec = {
   url: string;
@@ -53,6 +54,11 @@ export function request(requestSpec: RequestSpec): Action {
       }
       let response;
       try {
+        context.$meter.publish(Metrics.REQUEST, {
+          count: 1,
+          method: requestSpec.method as string,
+          url: requestSpec.url,
+        });
         response = await context.$http.request({
           url: spec.url,
           method: spec.method,
@@ -60,12 +66,12 @@ export function request(requestSpec: RequestSpec): Action {
           headers: spec.headers,
         });
       } catch (e) {
-        context.$meter.publish('http_err', {
-          count: 1,
-          method: requestSpec.method as string,
-          url: requestSpec.url,
-          err: e.message,
-        });
+        context.$meter.publish(Metrics.ERROR, {
+          c: 1,
+          m: requestSpec.method as string,
+          u: requestSpec.url,
+          e: e.message,
+        } as ErrorFields);
         throw e;
       }
       // received response
@@ -73,38 +79,38 @@ export function request(requestSpec: RequestSpec): Action {
         if (spec.expect) {
           try {
             await spec.expect(response, context);
-            context.$meter.publish('http_ok', {
-              count: 1,
-              method: requestSpec.method as string,
-              url: requestSpec.url,
-              status: response.status,
-            });
+            context.$meter.publish(Metrics.SUCCESS, {
+              c: 1,
+              m: requestSpec.method as string,
+              u: requestSpec.url,
+              s: response.status,
+            } as SuccessFields);
           } catch (e) {
-            context.$meter.publish('http_ko', {
-              count: 1,
-              method: requestSpec.method as string,
-              url: requestSpec.url,
-              status: response.status,
-              error: 'assertion failure',
-            });
+            context.$meter.publish(Metrics.FAILURE, {
+              c: 1,
+              m: requestSpec.method as string,
+              u: requestSpec.url,
+              s: response.status,
+              e: 'assertion failure',
+            } as FailureFields);
             throw e;
           }
         } else {
           if (response.status < 400) {
-            context.$meter.publish('http_ok', {
-              count: 1,
-              method: requestSpec.method as string,
-              url: requestSpec.url,
-              status: response.status,
-            });
+            context.$meter.publish(Metrics.SUCCESS, {
+              c: 1,
+              m: requestSpec.method as string,
+              u: requestSpec.url,
+              s: response.status,
+            } as SuccessFields);
           } else {
-            context.$meter.publish('http_ko', {
-              count: 1,
-              method: requestSpec.method as string,
-              url: requestSpec.url,
-              status: response.status,
-              error: 'non 2xx / 3xx',
-            });
+            context.$meter.publish(Metrics.FAILURE, {
+              c: 1,
+              m: requestSpec.method as string,
+              u: requestSpec.url,
+              s: response.status,
+              e: 'non 2xx / 3xx',
+            } as FailureFields);
             throw new Error(`not 2xx / 3xx: ${response.status}`);
           }
         }

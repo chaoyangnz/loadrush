@@ -1,6 +1,8 @@
 import { Client } from '@influxdata/influx';
 import { BucketRetentionRules, IBucket } from '@influxdata/influx/dist';
+import { Env } from './env';
 import { Logger } from './log';
+import { Fields } from './metrics';
 import { getEnv } from './util';
 
 // ----- This is a hack as InfluxDB client seems to require browser environment ----
@@ -10,7 +12,7 @@ import { XMLHttpRequest } from 'xmlhttprequest';
 global.XMLHttpRequest = XMLHttpRequest;
 // --------------------------------------------------------------------------------
 
-interface KV {
+export interface KV {
   [key: string]: string | number;
 }
 
@@ -22,12 +24,13 @@ export class Meter {
   logger = new Logger('loadflux:meter');
 
   bucketExisted!: Promise<IBucket>;
+  verboseMetrics = false;
 
   constructor() {
-    this.org = getEnv('LOADFLUX_INFLUXDB_ORG', '');
-    this.bucket = getEnv('LOADFLUX_TEST_ID', String(Date.now()));
+    this.org = getEnv(Env.LOADFLUX_INFLUXDB_ORG, '');
+    this.bucket = getEnv(Env.LOADFLUX_TEST_ID, String(Date.now()));
     this.api = getEnv(
-      'LOADFLUX_INFLUXDB_API',
+      Env.LOADFLUX_INFLUXDB_API,
       'https://us-west-2-1.aws.cloud2.influxdata.com/api/v2',
     );
 
@@ -37,8 +40,10 @@ export class Meter {
       );
       process.exit(-1);
     }
-    this.client = new Client(this.api, getEnv('LOADFLUX_INFLUXDB_TOKEN', ''));
+    this.client = new Client(this.api, getEnv(Env.LOADFLUX_INFLUXDB_TOKEN, ''));
     this.createBucketIfNotExist();
+    this.verboseMetrics =
+      getEnv<string>(Env.LOADFLUX_VERBOSE_METRICS, 'false') === 'true';
   }
 
   private createBucketIfNotExist() {
@@ -81,7 +86,7 @@ export class Meter {
     });
   }
 
-  publish(measurement: string, fields: KV, timestamp?: number, tags?: KV) {
+  publish(measurement: string, fields: Fields, timestamp?: number, tags?: KV) {
     // const data = 'mem,host=host1 used_percent=23.43234543 1556896326'; // Line protocol string
     this.bucketExisted.then(() => {
       const data = this.build(measurement, fields, tags, timestamp);
@@ -95,7 +100,7 @@ export class Meter {
   // <measurement>[,<tag_key>=<tag_value>[,<tag_key>=<tag_value>]] <field_key>=<field_value>[,<field_key>=<field_value>] [<timestamp>]
   private build(
     measurement: string,
-    fields: KV,
+    fields: Fields,
     tags?: KV,
     timestamp?: number,
   ) {
@@ -105,13 +110,14 @@ export class Meter {
         .map(([key, value]) => `${key}=${this.quoteIfNeed(value)}`)
         .join(',');
     }
-    const extraTags = getEnv('LOADFLUX_INFLUXDB_TAGS', '');
+    const extraTags = getEnv(Env.LOADFLUX_INFLUXDB_TAGS, '');
     if (extraTags) {
       joinedTags += `,${extraTags}`;
     }
     let joinedFields = '';
     if (fields) {
       joinedFields = Object.entries(fields)
+        .filter(([key, value]) => this.isNumeric(value) || this.verboseMetrics)
         .map(([key, value]) => `${key}=${this.quoteIfNeed(value)}`)
         .join(',');
     }
@@ -121,13 +127,20 @@ export class Meter {
   }
 
   private quoteIfNeed(value: string | number) {
-    // @ts-ignore
-    return isNaN(value) ? `"${value}"` : value;
+    return this.isNumeric(value) ? Number(value) : `"${value}"`;
   }
 
   // Get the nanoseconds since unix epoch
   private nanotime() {
-    // TODO
-    return `${Date.now()}000000`;
+    if (this.verboseMetrics) {
+      // TODO
+      return `${Date.now()}000000`;
+    }
+    return '';
+  }
+
+  private isNumeric(value: string | number) {
+    // @ts-ignore
+    return !isNaN(value);
   }
 }

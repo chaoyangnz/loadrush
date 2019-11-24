@@ -9,7 +9,7 @@
 
 Loadflux is a simplistic tool for load testing.
 You just need to focus more on how to design your scenario, and the scripting is just taking several minutes.
-The infrastructure requirement is pretty low, you can simulate hundreds of virtual users to send requests to your application.
+The infrastructure requirement is pretty low, you can simulate hundreds of virtual users to send requests to your application in your local machine.
 It support different strategy to ramp the load, by default in this library, we provide:
 
 - sustain a constant load, for example, you want to keep 200 users in your web application to do different actions. 
@@ -53,14 +53,20 @@ Just like any other NodeJS application, run it using `node` command line. `Loadf
 (e.g. in Dockerfile, docker-composer file, k8s deployment.yaml, CloudFormation, etc).
 
 Environment Variables:
-- `LOADFLUX_VU_POOL_SIZE`: decide how many virtual users (`VU`) how many users can be available at maximum. These users are volunteers, which does
-not necessarily mean all of them will participate the execution of your scenarios. You decide how many virtual users are planned and checked in/out by your testing strategy.
-- `LOADFLUX_DURATION`: how long you plan to run your load testing.
-- `LOADFLUX_INFLUXDB_API`: `InfluxDB` v2 API endpoint, typically like `https://us-west-2-1.aws.cloud2.influxdata.com/api/v2`. Refer to `InfluxDB` documentation.
-- `LOADFLUX_INFLUXDB_TOKEN`: `InfluxDB` token, which can be found in InfluxDB cloud admin console.
-- `LOADFLUX_INFLUXDB_ORG`: `InfluxDB` organization, which be can be found in the URL of InfluxDB cloud admin console. e.g. `https://us-west-2-1.aws.cloud2.influxdata.com/orgs/<orgID>`.
-- `LOADFLUX_BASE_URL`: the base url of your application. If you don't set, you have to use absolute URL in your request action.
-- `LOADFLUX_TEST_ID`: the test id (16 chars at most) used for different iteration of your testing. Default: current timestamp since unix epoch.
+- General
+    - `LOADFLUX_VU_POOL_SIZE`: define how many virtual users (`VU`) how many users can be available at maximum. These users are volunteers, which does
+    not necessarily mean all of them will participate the execution of your scenarios. You decide how many virtual users are planned and checked in/out by your testing strategy.
+    - `LOADFLUX_DURATION`: how long you plan to run your load testing.
+    - `LOADFLUX_BASE_URL`: the base url of your application. If you don't set, you have to use absolute URL in your request action.
+    - `LOADFLUX_TEST_ID`: the test id (16 chars at most) used for different iteration of your testing. Default: current timestamp since unix epoch.
+- Metrics
+    - `LOADFLUX_INFLUXDB_API`: `InfluxDB` v2 API endpoint, typically like `https://us-west-2-1.aws.cloud2.influxdata.com/api/v2`. Refer to `InfluxDB` documentation.
+    - `LOADFLUX_INFLUXDB_TOKEN`: `InfluxDB` token, which can be found in InfluxDB cloud admin console.
+    - `LOADFLUX_INFLUXDB_ORG`: `InfluxDB` organization, which be can be found in the URL of InfluxDB cloud admin console. e.g. `https://us-west-2-1.aws.cloud2.influxdata.com/orgs/<orgID>`.
+    - `LOADFLUX_VERBOSE_METRICS`: in terms of InfluxDB cost, text fields will be sent when it is set as `true`, otherwise only numeric fields are sent. Default: `false`.
+    As we know, InfluxDB Cloud free plan has a rate limit of 10kb/s write.
+- Logging
+    - `DEBUG`: we are use `debug` as our underlying logger, so you can enable a namespace. e.g. `DEBUG=loadflux:*`
 
 ### Report and logs
 

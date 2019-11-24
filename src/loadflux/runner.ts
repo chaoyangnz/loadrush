@@ -1,6 +1,7 @@
 import 'core-js/features/promise/finally';
 import dotenv from 'dotenv';
 import { Action } from './action';
+import { Env } from './env';
 import { Logger, Reporter } from './log';
 import { Meter } from './meter';
 import { getEnv } from './util';
@@ -23,9 +24,9 @@ export class Runner {
     // load .env env vars
     dotenv.config();
 
-    this.baseUrl = getEnv('LOADFLUX_BASE_URL', '');
-    this.poolSize = getEnv<number>('LOADFLUX_VU_POOL_SIZE', 10_000);
-    this.duration = getEnv<number>('LOADFLUX_DURATION', 600);
+    this.baseUrl = getEnv(Env.LOADFLUX_BASE_URL, '');
+    this.poolSize = getEnv<number>(Env.LOADFLUX_VU_POOL_SIZE, 10_000);
+    this.duration = getEnv<number>(Env.LOADFLUX_DURATION, 600);
     this.vus = new Volunteers(this.poolSize);
     this.meter = new Meter();
     for (const [key, value] of Object.entries(process.env)) {
