@@ -4,7 +4,13 @@ import { Action, ActionType } from '../action';
 import { Context } from '../context';
 import { Request, Response } from '../http';
 import { Logger } from '../log';
-import { ErrorFields, FailureFields, Metrics, SuccessFields } from '../metrics';
+import {
+  ErrorFields,
+  FailureFields,
+  Metrics,
+  RequestFields,
+  SuccessFields,
+} from '../metrics';
 
 export type RequestSpec = {
   url: string;
@@ -78,10 +84,10 @@ export function request(requestSpec: RequestSpec): Action {
       let response: Response;
       try {
         context.$meter.publish(Metrics.REQUEST, {
-          count: 1,
-          method: requestSpec.method as string,
-          url: requestSpec.url,
-        });
+          c: 1,
+          m: requestSpec.method as string,
+          u: requestSpec.url,
+        } as RequestFields);
         console.log(spec.method, spec.url);
         response = await context.$http.request({
           url: spec.url,
@@ -147,10 +153,13 @@ export function request(requestSpec: RequestSpec): Action {
                 | JsonBodyCapture
                 | HtmlBodyCapture = captureSpec as JsonBodyCapture;
               if (bodyCapture.jmespath) {
-                context.vars[captureSpec.as] = jmespath.search(
-                  body,
-                  bodyCapture.jmespath,
-                );
+                let value;
+                if (bodyCapture.jmespath === '$') {
+                  value = response.data;
+                } else {
+                  value = jmespath.search(body, bodyCapture.jmespath);
+                }
+                context.vars[captureSpec.as] = value;
               }
               bodyCapture = captureSpec as HtmlBodyCapture;
               if (bodyCapture.xpath) {

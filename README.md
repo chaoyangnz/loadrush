@@ -19,7 +19,7 @@ you can ramp up 50 new users per second, then sometime your application will cra
 
 ### Scenario and Action logs 
 
-![](screenshot.gif)
+![](https://i.imgur.com/RLcFPJh.gif)
 
 ### Metrics
 
@@ -27,7 +27,7 @@ We integrate [InfluxDB](https://www.influxdata.com/) and send real-time measurem
 Some basic metrics like requests/success/failure count, mean response time, RPS, active virtual users etc can be monitored in its platform.
 We choose InfluxDB as it has an intuitive UI and easy to integrate. But we will add more integrations to other monitoring platforms in the future.
 
-![](https://i.imgur.com/yEh9lpc.gif)
+![](https://i.imgur.com/OaD17J8.gif)
 
 ## Concepts
 

@@ -1,4 +1,5 @@
 import faker from 'faker';
+import { cloneDeep } from 'lodash';
 
 export function createStoryPayload() {
   return {
@@ -17,7 +18,7 @@ export function createStoryPayload() {
     ],
     byLine: {
       authors: [
-        { name: 'smoke test', email: 'test@fairfaxmedia.co.nz' },
+        { name: 'load test', email: 'test@fairfaxmedia.co.nz' },
         {
           name: 'Chao Yang',
           email: 'chao.yang@fairfaxmedia.co.nz',
@@ -38,4 +39,13 @@ export function createStoryPayload() {
     createdBy: 'load test',
     lockedBy: 'test@fairfaxmedia.co.nz',
   };
+}
+
+export function updateStoryPayload(story: any) {
+  const storyUpdated = cloneDeep(story);
+  storyUpdated.assetSubType = 'opinion';
+  storyUpdated.headline = `Loadflux: ${faker.lorem.sentence(
+    5,
+  )} @ ${new Date().toLocaleString()} - updated`;
+  return storyUpdated;
 }

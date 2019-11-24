@@ -93,6 +93,28 @@ export class Runner {
     }
   }
 
+  parallel(actions: Action[], context: Context) {
+    const ctx = context.clone();
+    return Promise.all(
+      actions.map((action) => {
+        const reporter = new Reporter({
+          text: ctx.renderTemplate(action.title),
+          prefixText: '  ',
+        }).start();
+        return action
+          .run(ctx)
+          .then(() => {
+            reporter.succeed();
+          })
+          .catch((e) => {
+            reporter.fail();
+            new Logger('loadflux:action').log(e);
+            throw e;
+          });
+      }),
+    );
+  }
+
   // constant load at one time
   sustain(size: number) {
     for (let i = 0; i < size; ++i) {
