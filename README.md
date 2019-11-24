@@ -29,6 +29,53 @@ We choose InfluxDB as it has an intuitive UI and easy to integrate. But we will 
 
 ![](https://i.imgur.com/yEh9lpc.gif)
 
+## Concepts
+
+- `Virtual User`: a.k.a `VU`, represent a user which is supposed to execute your scenarios.
+- `Scenario`: a scenarios is a list of actions a normal user can take in your applications.
+- `Action`: an operation in your application, typically including requests (APIs, static assets etc), think time, logging.
+- `Runner`: a runner is the pilot who controls everything of your testing. When a new virtual user arrives, 
+the runner will first checkin at candidates registry, and choose a scenario probabilistically as per the scenario weight. The last step is to assign 
+the virtual user to that scenario and run it until the scenario is completed. You can decide how new virtual users arrive in a constant number or a ramp-up rate.
+
+## Usage
+
+### Write you scenarios
+
+You can refer to the `samples` folder, there are some examples. If you read them, actually it is easy to write and you just need to take advantage of 
+your NodeJS/Javascript knowledge.
+
+### Run you code
+
+Just like any other NodeJS application, run it using `node` command line. `Loadflux` is just a _library_, **NOT** a framework or CLI.
+
+`Loadflux` has some environment variables worth noticing. Either create a `.env` file or specify them when you run your application 
+(e.g. in Dockerfile, docker-composer file, k8s deployment.yaml, CloudFormation, etc).
+
+Environment Variables:
+- `LOADFLUX_VU_POOL_SIZE`: decide how many virtual users (`VU`) how many users can be available at maximum. These users are volunteers, which does
+not necessarily mean all of them will participate the execution of your scenarios. You decide how many virtual users are planned and checked in/out by your testing strategy.
+- `LOADFLUX_DURATION`: how long you plan to run your load testing.
+- `LOADFLUX_INFLUXDB_API`: `InfluxDB` v2 API endpoint, typically like `https://us-west-2-1.aws.cloud2.influxdata.com/api/v2`. Refer to `InfluxDB` documentation.
+- `LOADFLUX_INFLUXDB_TOKEN`: `InfluxDB` token, which can be found in InfluxDB cloud admin console.
+- `LOADFLUX_INFLUXDB_ORG`: `InfluxDB` organization, which be can be found in the URL of InfluxDB cloud admin console. e.g. `https://us-west-2-1.aws.cloud2.influxdata.com/orgs/<orgID>`.
+- `LOADFLUX_BASE_URL`: the base url of your application. If you don't set, you have to use absolute URL in your request action.
+- `LOADFLUX_TEST_ID`: the test id (16 chars at most) used for different iteration of your testing. Default: current timestamp since unix epoch.
+
+### Report and logs
+
+Normally, the report logs around scenarios and actions can be seen in console and it is written to `stderr`. 
+So if you are running in a container environment or cloud platform (e.g. GCP), not surprised about the log severity is `error` level, which is intentional.
+
+Other than the report logs, all rest logs are going to `stdout`, further redirected to a log file in current directory: `loadflux.log`.
+You can run the command line: `tail -f loadflux.log` to keep the file open to display updated changes to console.
+
+### Monitor metrics and build your dashboard
+
+All the data is collected in `InfluxDB` if you set up the account beforehand. Then you can filter and aggregate time-series data, and end up with fancy charts.
+If you like, build a dashboard and keep monitoring. All these things are depending on your Data processing skills.
+
+
 ## Roadmap
 
 - collect statistical data to help analytics and build metrics to visualise
@@ -46,5 +93,7 @@ testing tools:
 - `K6`: customised runtime, not compatible with existing nodejs modules and 3rd-party library
 - `Gatling`: we do use it to do the performance testing for our Java application, but we think the scripting in Scala is not our flavour.
 
+## Last words
 
+UNIT TESTS ARE COMING!! NO HURRY. LOADFLUX IS STILL A BABY.
 

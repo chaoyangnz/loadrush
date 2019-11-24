@@ -1,9 +1,6 @@
 import { Client } from '@influxdata/influx';
 import { BucketRetentionRules, IBucket } from '@influxdata/influx/dist';
-import fs from 'fs';
-import * as os from 'os';
 import { Logger } from './log';
-import { hookStream } from './stdout';
 import { getEnv } from './util';
 
 // ----- This is a hack as InfluxDB client seems to require browser environment ----

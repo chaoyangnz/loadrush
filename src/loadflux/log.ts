@@ -2,8 +2,8 @@ import debug, { Debugger } from 'debug';
 import ora, { Ora } from 'ora';
 import { redirectStdout } from './stdout';
 
-debug.log = console.info.bind(console);
 // `debug` is sending to stdout; report (ora) is sending to stderr
+debug.log = console.info.bind(console);
 // we only want to show report logs in tty otherwise the console will be messy
 // (could be an issue of ora implementation which memorise the cursor and update periodically),
 // so we redirect the Logger logs to a file
