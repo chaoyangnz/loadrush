@@ -1,14 +1,15 @@
 import 'core-js/features/promise/finally';
 import dotenv from 'dotenv';
+import { sample } from 'lodash';
 import { Action } from './action';
 import { Env } from './env';
 import { Logger, Reporter } from './log';
 import { Meter } from './meter';
+import { Template } from './template';
 import { getEnv } from './util';
 import { Volunteers } from './vu';
 import { Context } from './context';
 import { Scenario } from './scenario';
-import { sample } from 'lodash';
 
 export class Runner {
   baseUrl: string;
@@ -18,6 +19,7 @@ export class Runner {
   scenarios: Scenario[] = [];
   vus: Volunteers;
   meter: Meter;
+  template: Template;
   duration: number;
 
   constructor() {
@@ -29,13 +31,14 @@ export class Runner {
     this.duration = getEnv<number>(Env.LOADFLUX_DURATION, 600);
     this.vus = new Volunteers(this.poolSize);
     this.meter = new Meter();
+    this.template = new Template();
     for (const [key, value] of Object.entries(process.env)) {
       this.env[key] = getEnv(key, '');
     }
   }
 
   // attach a vu to a scenario
-  private async fly() {
+  private async go() {
     const vu = this.vus.checkin();
     const scenario = sample(this.scenarios) as Scenario;
     const context: Context = new Context(runner, vu, scenario);
@@ -47,7 +50,7 @@ export class Runner {
     ).start();
 
     try {
-      await waterfall(scenario.actions, context);
+      await this.waterfall(scenario.actions, context);
       reporter.succeed();
     } catch (e) {
       reporter.fail();
@@ -58,15 +61,35 @@ export class Runner {
 
   // a vu exits and another continues
   private relay() {
-    this.fly().finally(() => {
+    this.go().finally(() => {
       this.relay();
     });
   }
 
   // arrive multiple vus together
-  private arrive(size: number) {
+  private flood(size: number) {
     for (let i = 0; i < size; ++i) {
-      this.fly();
+      this.go();
+    }
+  }
+
+  async waterfall(actions: Action[], context: Context) {
+    let ctx = context;
+    for (const action of actions) {
+      const reporter = new Reporter({
+        text: ctx.renderTemplate(action.title),
+        prefixText: '  ',
+      }).start();
+
+      try {
+        ctx = ctx.clone();
+        await action.run(ctx);
+        reporter.succeed();
+      } catch (e) {
+        reporter.fail();
+        new Logger('loadflux:action').log(e);
+        throw e;
+      }
     }
   }
 
@@ -78,28 +101,10 @@ export class Runner {
   }
 
   // ramp up
-  rampUp(rate: number) {
+  ramp(rate: number) {
     setInterval(() => {
-      this.arrive(rate);
+      this.flood(rate);
     }, 1_000);
-  }
-}
-
-export async function waterfall(actions: Action[], context: Context) {
-  for (const action of actions) {
-    const reporter = new Reporter({
-      text: action.title,
-      prefixText: '  ',
-    }).start();
-
-    try {
-      await action.run(context);
-      reporter.succeed();
-    } catch (e) {
-      reporter.fail();
-      new Logger('loadflux:action').log(e);
-      throw e;
-    }
   }
 }
 

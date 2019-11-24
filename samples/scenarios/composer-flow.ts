@@ -1,4 +1,5 @@
 import { before, get, log, post, think, Context, scenario } from '../../src';
+import { loop } from '../../src/loadflux/actions/loop';
 import { createStoryPayload } from './fixtures/create-story';
 
 scenario(
@@ -15,6 +16,23 @@ scenario(
     }),
     log('Logged checkin the landing page'),
     think(2000),
+    get({
+      url: '/api/images?sort=-lastUpdated&pageSize=10&pageIndex=1',
+      capture: [
+        {
+          from: 'body',
+          jmespath: 'pageContent[*].{id:id,href:href}', // 'pageContent[*].thumbnailImage.[id,href]',
+          as: 'thumbnails',
+        },
+      ],
+    }),
+    log('List top 10 stories'),
+    loop({ over: 'thumbnails', parallel: false }, [
+      get({
+        url:
+          '/api/images/{{ $loopElement.id }}/blob?href={{ $loopElement.href }}',
+      }),
+    ]),
     post({
       url: '/api/stories',
       data: createStoryPayload(),
@@ -23,5 +41,6 @@ scenario(
       },
     }),
     log('Created a new story'),
+    think(1000),
   ],
 );

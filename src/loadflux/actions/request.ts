@@ -1,4 +1,5 @@
 import { cloneDeep } from 'lodash';
+import jmespath from 'jmespath';
 import { Action, ActionType } from '../action';
 import { Context } from '../context';
 import { Request, Response } from '../http';
@@ -8,10 +9,30 @@ import { ErrorFields, FailureFields, Metrics, SuccessFields } from '../metrics';
 export type RequestSpec = {
   url: string;
   expect?: ExpectCallback;
-  // capture?: CaptureCallback;
+  capture?: CaptureSpec[];
   beforeRequest?: BeforeRequestCallback;
   afterResponse?: AfterResponseCallback;
 } & Request;
+
+export interface JsonBodyCapture {
+  from: 'body';
+  jmespath: string;
+  as: string;
+}
+
+export interface HeaderCapture {
+  from: 'header';
+  name: string;
+  as: string;
+}
+
+export interface HtmlBodyCapture {
+  from: 'body';
+  xpath: string;
+  as: string;
+}
+
+export type CaptureSpec = JsonBodyCapture | HtmlBodyCapture | HeaderCapture;
 
 // export type CaptureCallback = (response: AxiosResponse, context: Context) => Promise<void>;
 
@@ -39,6 +60,8 @@ export function request(requestSpec: RequestSpec): Action {
       const logger = new Logger('loadflux:http');
       const spec = cloneDeep(requestSpec);
       if (!/https?:\/\//.test(spec.url)) {
+        // interpolate the variables in URL
+        spec.url = context.renderTemplate(spec.url);
         spec.url = context.$runner.baseUrl + spec.url;
       }
       if (spec.beforeRequest) {
@@ -52,13 +75,14 @@ export function request(requestSpec: RequestSpec): Action {
           throw e;
         }
       }
-      let response;
+      let response: Response;
       try {
         context.$meter.publish(Metrics.REQUEST, {
           count: 1,
           method: requestSpec.method as string,
           url: requestSpec.url,
         });
+        console.log(spec.method, spec.url);
         response = await context.$http.request({
           url: spec.url,
           method: spec.method,
@@ -114,9 +138,31 @@ export function request(requestSpec: RequestSpec): Action {
             throw new Error(`not 2xx / 3xx: ${response.status}`);
           }
         }
-        // if (spec.capture) {
-        //   await spec.capture(response, context);
-        // }
+        if (spec.capture) {
+          spec.capture.forEach((captureSpec: CaptureSpec) => {
+            if (captureSpec.from === 'body') {
+              const body = response.data;
+              // TODO CHECK content-type
+              let bodyCapture:
+                | JsonBodyCapture
+                | HtmlBodyCapture = captureSpec as JsonBodyCapture;
+              if (bodyCapture.jmespath) {
+                context.vars[captureSpec.as] = jmespath.search(
+                  body,
+                  bodyCapture.jmespath,
+                );
+              }
+              bodyCapture = captureSpec as HtmlBodyCapture;
+              if (bodyCapture.xpath) {
+                // TODO
+              }
+            }
+
+            if (captureSpec.from === 'header') {
+              context.vars[captureSpec.as] = response.headers[captureSpec.name];
+            }
+          });
+        }
         if (spec.afterResponse) {
           try {
             await spec.afterResponse(spec, response, context);
