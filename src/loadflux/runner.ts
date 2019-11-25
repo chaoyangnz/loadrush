@@ -5,7 +5,6 @@ import { Action } from './action';
 import { Env } from './env';
 import { Logger, Reporter } from './log';
 import { Meter } from './meter';
-import { Template } from './template';
 import { getEnv } from './util';
 import { Volunteers } from './vu';
 import { Context } from './context';
@@ -19,11 +18,10 @@ export class Runner {
   scenarios: Scenario[] = [];
   vus: Volunteers;
   meter: Meter;
-  template: Template;
   duration: number;
 
   constructor() {
-    // load .env env vars
+    // load .$env $env vars
     dotenv.config();
 
     this.baseUrl = getEnv(Env.LOADFLUX_BASE_URL, '');
@@ -31,7 +29,6 @@ export class Runner {
     this.duration = getEnv<number>(Env.LOADFLUX_DURATION, 600);
     this.vus = new Volunteers(this.poolSize);
     this.meter = new Meter();
-    this.template = new Template();
     for (const [key, value] of Object.entries(process.env)) {
       this.env[key] = getEnv(key, '');
     }
@@ -78,7 +75,7 @@ export class Runner {
     for (const action of actions) {
       const reporter = new Reporter({
         text: ctx.renderTemplate(action.title),
-        prefixText: '  ',
+        indent: 2,
       }).start();
 
       try {
@@ -94,9 +91,9 @@ export class Runner {
   }
 
   parallel(actions: Action[], context: Context) {
-    const ctx = context.clone();
     return Promise.all(
       actions.map((action) => {
+        const ctx = context.clone();
         const reporter = new Reporter({
           text: ctx.renderTemplate(action.title),
           prefixText: '  ',
