@@ -57,7 +57,7 @@ Environment Variables:
     - `LOADFLUX_VU_POOL_SIZE`: define the maximum of virtual users can be available. These users are volunteers, which does
     not necessarily mean all of them will participate in the execution of your scenarios. You decide how many virtual users are planned by your testing strategy.
     - `LOADFLUX_DURATION`: how long you plan to run your load testing.
-    - `LOADFLUX_BASE_URL`: the base url of your application. If you don't set, you have to use absolute URL in your request action.
+    - `LOADFLUX_BASE_URL`: the base url of your application. If you don't set, you have to use absolute URL in your http action.
     - `LOADFLUX_TEST_ID`: the test id (16 chars at most) used for different iteration of your testing. Default: current timestamp since unix epoch.
 - Metrics
     - `LOADFLUX_INFLUXDB_API`: `InfluxDB` v2 API endpoint, typically like `https://us-west-2-1.aws.cloud2.influxdata.com/api/v2`. Refer to `InfluxDB` documentation.

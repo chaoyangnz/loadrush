@@ -1,13 +1,4 @@
-import {
-  before,
-  get,
-  log,
-  post,
-  think,
-  Context,
-  scenario,
-  put,
-} from '../../src';
+import { get, log, post, think, scenario, put } from '../../src';
 import { loop } from '../../src/loadflux/actions/loop';
 import { createStoryPayload, updateStoryPayload } from './fixtures/story';
 
@@ -17,11 +8,11 @@ scenario(
     weight: 1,
   },
   [
-    before(async (context: Context) => {
-      context.$http.cookie('M_J_R_S', context.env.COMPOSER_COOKIE as string);
-    }),
     get({
       url: '/',
+      cookie: {
+        M_J_R_S: '{{ $env.COMPOSER_COOKIE }}',
+      },
     }),
     log('Logged in the landing page'),
     think(2000),
@@ -29,8 +20,7 @@ scenario(
       url: '/api/images?sort=-lastUpdated&pageSize=10&pageIndex=1',
       capture: [
         {
-          from: 'body',
-          jmespath: 'pageContent[*].{id:id,href:href}', // 'pageContent[*].thumbnailImage.[id,href]',
+          json: 'pageContent[*].{id:id,href:href}', // 'pageContent[*].thumbnailImage.[id,href]',
           as: 'thumbnails',
         },
       ],
@@ -47,8 +37,7 @@ scenario(
       data: createStoryPayload(),
       capture: [
         {
-          from: 'body',
-          jmespath: '$',
+          json: '$',
           as: 'story',
         },
       ],
