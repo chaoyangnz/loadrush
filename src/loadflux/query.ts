@@ -5,7 +5,7 @@ export type JsonQuery = string;
 export type HtmlQuery = string;
 
 export function queryJson(doc: any, query: JsonQuery) {
-  jmespath.search(doc, query);
+  return jmespath.search(doc, query);
 }
 
 export function queryHtml(doc: string, query: HtmlQuery) {
