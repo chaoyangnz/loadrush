@@ -1,6 +1,7 @@
 import { before, get, log, post, think, Context, scenario } from '../../src';
 
-scenario({ name: 'story flow', weight: 1 }, [
+scenario(
+  { name: 'story flow', weight: 1 },
   before(async (context) => {}),
   get({
     url: 'http://www.mocky.io/v2/5dd7abf43100004e000559e2',
@@ -13,4 +14,4 @@ scenario({ name: 'story flow', weight: 1 }, [
     expect: async (context) => {},
   }),
   log('get story details'),
-]);
+);

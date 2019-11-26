@@ -29,7 +29,7 @@ export class Scenario {
 }
 
 // register a scenario
-export function scenario(spec: ScenarioSpec, actions: Action[]) {
-  const scenario = new Scenario(spec, actions);
+export function scenario(spec: ScenarioSpec, ...flow: Action[]) {
+  const scenario = new Scenario(spec, flow);
   runner.scenarios.push(scenario);
 }

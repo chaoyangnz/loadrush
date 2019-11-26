@@ -51,9 +51,9 @@ You can make use of these actions: `get`, `post`, `put`, `think`, `loop`, `paral
 import { runner, scenario, get, post, put,log, think, loop, parallel } from 'loadflux';
 
 scenario({
-  name: 'an example flow',
-  weight: 1
-}, [
+    name: 'an example flow',
+    weight: 1
+  },
   get({
     url: '/stories?limit=5'
   }),
@@ -76,7 +76,7 @@ scenario({
       as: 'firstNote'
     }
   })
-])
+)
 
 runner.sustain(5); // keep 5 users busy to run a scenario
 ```
