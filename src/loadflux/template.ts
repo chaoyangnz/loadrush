@@ -4,8 +4,8 @@ mustache.escape = (text) => {
   return text;
 };
 
-export function render(template: Temptable, context: any) {
+export function render(template: Template, context: any) {
   return mustache.render(template, context);
 }
 
-export type Temptable = string;
+export type Template = string;

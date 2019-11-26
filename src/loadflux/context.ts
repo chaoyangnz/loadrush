@@ -3,7 +3,7 @@ import { HttpClient } from './http-client';
 import { Meter } from './meter';
 import { Runner } from './runner';
 import { Scenario } from './scenario';
-import { render, Temptable } from './temptable';
+import { render, Template } from './template';
 import { VU } from './vu';
 
 /**
@@ -55,7 +55,7 @@ export class Context {
     return clone;
   }
 
-  renderTemplate(template: Temptable) {
+  renderTemplate(template: Template) {
     const model = { ...this.vars, $env: this.$env };
     return render(template, model);
   }

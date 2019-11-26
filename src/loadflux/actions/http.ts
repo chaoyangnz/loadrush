@@ -4,12 +4,12 @@ import { Context } from '../context';
 import { Request, Response } from '../http-client';
 import { Logger } from '../log';
 import { queryHtml, queryJson } from '../query';
-import { Temptable } from '../temptable';
+import { Template } from '../template';
 
 export type RequestSpec = {
-  url: Temptable;
+  url: Template;
   data?: any | Callable<any>;
-  cookie?: { [key: string]: Temptable };
+  cookie?: { [key: string]: Template };
   expect?: ExpectSpec | ExpectCallable;
   capture?: CaptureSpec[];
   beforeRequest?: BeforeRequestCallback;

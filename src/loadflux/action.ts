@@ -1,5 +1,5 @@
 import { Context } from './context';
-import { Temptable } from './temptable';
+import { Template } from './template';
 
 export enum ActionType {
   STEP = 'step',
@@ -13,6 +13,6 @@ export type Callable<T> = (context: Context) => Promise<T>;
 
 export interface Action {
   type: ActionType;
-  title: Temptable;
+  title: Template;
   run: Runnable;
 }
