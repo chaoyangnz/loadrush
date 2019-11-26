@@ -1,4 +1,4 @@
-import { get, log, post, think, scenario, put, loop } from '../../src';
+import { get, log, post, think, scenario, put, loop } from 'loadflux';
 import { createStoryPayload, updateStoryPayload } from './fixtures/story';
 
 scenario(

@@ -17,7 +17,7 @@
     "test:watch": "jest --env=node --watch --updateSnapshot",
     "prepublish": "npm run build",
     "prebuild": "npm run clean",
-    "postbuild": "rimraf {lib,es,dist}/**/__tests__ {lib,es,dist}/**/*.{spec,test,dist}.{js,d.ts,js.map}",
+    "postbuild": "mv dist/src/* dist/ && rimraf dist/{src,examples} dist/**/__tests__ dist/**/*.{spec,test,dist}.{js,d.ts,js.map}",
     "posttest": "npm run typecheck && npm run lint",
     "preversion": "npm test",
     "postversion": "git push && git push --tags"
