@@ -45,9 +45,7 @@ scenario(
     think(1000),
     put({
       url: '/api/stories/{{ story.id }}',
-      beforeRequest: async (request, context) => {
-        request.data = updateStoryPayload(context.vars.story);
-      },
+      data: updateStoryPayload,
     }),
     log('Updated a story'),
     get({

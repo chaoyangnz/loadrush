@@ -1,5 +1,6 @@
 import faker from 'faker';
 import { cloneDeep } from 'lodash';
+import { Context } from '../../../src';
 
 export function createStoryPayload() {
   return {
@@ -41,7 +42,8 @@ export function createStoryPayload() {
   };
 }
 
-export function updateStoryPayload(story: any) {
+export function updateStoryPayload(context: Context) {
+  const story = context.vars.story;
   const storyUpdated = cloneDeep(story);
   storyUpdated.assetSubType = 'opinion';
   storyUpdated.headline = `Loadflux: ${faker.lorem.sentence(

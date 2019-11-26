@@ -7,7 +7,9 @@ export enum ActionType {
   AFTER = 'after',
 }
 
-type Runnable = (context: Context) => Promise<void>;
+export type Runnable = (context: Context) => Promise<void>;
+
+export type Callable<T> = (context: Context) => Promise<T>;
 
 export interface Action {
   type: ActionType;

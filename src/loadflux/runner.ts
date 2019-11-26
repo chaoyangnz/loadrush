@@ -40,7 +40,7 @@ export class Runner {
     const scenario = sample(this.scenarios) as Scenario;
     const context: Context = new Context(runner, vu, scenario);
 
-    this.meter.publish('vu', { active: this.vus.active });
+    this.meter.publishVu(this.vus.active);
 
     const reporter = new Reporter(
       `∷∷ Scenario: ${scenario.name} 👤 ${vu} 🕐 ${Date.now()}`,

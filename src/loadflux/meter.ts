@@ -1,8 +1,17 @@
 import { Client } from '@influxdata/influx';
 import { BucketRetentionRules, IBucket } from '@influxdata/influx/dist';
 import { Env } from './env';
+import { Request, Response } from './http-client';
 import { Logger } from './log';
-import { Fields } from './metrics';
+import {
+  ErrorFields,
+  FailureFields,
+  Fields,
+  Metrics,
+  RequestFields,
+  SuccessFields,
+  VUFields,
+} from './metrics';
 import { getEnv } from './util';
 
 // ----- This is a hack as InfluxDB client seems to require browser environment ----
@@ -86,7 +95,12 @@ export class Meter {
     });
   }
 
-  publish(measurement: string, fields: Fields, timestamp?: number, tags?: KV) {
+  private publish(
+    measurement: string,
+    fields: Fields,
+    timestamp?: number,
+    tags?: KV,
+  ) {
     // const data = 'mem,host=host1 used_percent=23.43234543 1556896326'; // Line protocol string
     this.bucketExisted.then(() => {
       const data = this.build(measurement, fields, tags, timestamp);
@@ -95,6 +109,46 @@ export class Meter {
         console.warn('Error occurred when sending metrics', e);
       });
     });
+  }
+
+  publishHttpReq(request: Request) {
+    this.publish(Metrics.REQUEST, {
+      c: 1,
+      m: request.method,
+      u: request.url,
+    } as RequestFields);
+  }
+
+  publishHttpOk(response: Response<any>) {
+    this.publish(Metrics.SUCCESS, {
+      c: 1,
+      m: response.request.method,
+      u: response.request.url,
+      s: response.status,
+    } as SuccessFields);
+  }
+
+  publishHttpKo(response: Response<any>) {
+    this.publish(Metrics.FAILURE, {
+      c: 1,
+      m: response.request.method,
+      u: response.request.url,
+      s: response.status,
+      e: 'assertion failure',
+    } as FailureFields);
+  }
+
+  publishHttpErr(request: Request, e: Error) {
+    this.publish(Metrics.ERROR, {
+      c: 1,
+      m: request.method,
+      u: request.url,
+      e: e.message,
+    } as ErrorFields);
+  }
+
+  publishVu(count: number) {
+    this.publish(Metrics.VU, { a: count } as VUFields);
   }
 
   // <measurement>[,<tag_key>=<tag_value>[,<tag_key>=<tag_value>]] <field_key>=<field_value>[,<field_key>=<field_value>] [<timestamp>]

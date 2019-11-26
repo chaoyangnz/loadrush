@@ -5,6 +5,7 @@ export enum Metrics {
   FAILURE = 'http_ko',
   REQUEST = 'http_req',
   ERROR = 'http_err',
+  VU = 'vu',
 }
 
 export interface SuccessFields {
@@ -35,9 +36,14 @@ export interface ErrorFields {
   e: string;
 }
 
+export interface VUFields {
+  a: number;
+}
+
 export type Fields =
   | RequestFields
   | SuccessFields
   | FailureFields
   | ErrorFields
+  | VUFields
   | KV;

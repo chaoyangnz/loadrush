@@ -27,7 +27,7 @@ We integrate [InfluxDB](https://www.influxdata.com/) and send real-time measurem
 Some basic metrics like requests/success/failure count, mean response time, RPS, active virtual users etc can be monitored in its platform.
 We choose InfluxDB as it has an intuitive UI and easy to integrate. But we will add more integrations to other monitoring platforms in the future.
 
-![](https://i.imgur.com/OaD17J8.gif)
+![](https://i.imgur.com/TSvIJHa.gif)
 
 ## Concepts
 
@@ -44,6 +44,42 @@ the virtual user to that scenario and run it until the scenario is completed. Yo
 
 You can refer to the `samples` folder, there are some examples. If you read them, actually it is easy to write and you just need to take advantage of 
 your NodeJS/Javascript knowledge.
+
+You can make use of these actions: `get`, `post`, `put`, `think`, `loop`, `parallel`, `log`.
+
+```js
+import { runner, scenario, get, post, put,log, think, loop, parallel } from 'loadflux';
+
+scenario({
+  name: 'an example flow',
+  weight: 1
+}, [
+  get({
+    url: '/stories?limit=5'
+  }),
+  think(1000),
+  log('retrieved a story'),
+  post({
+    url: '/stories',
+    data: {
+      title: 'a story',
+      content: 'test',
+      notes: [
+        'a note'
+      ]
+    },
+    expect: {
+      status: 201
+    },
+    capture: {
+      json: 'notes[0]',
+      as: 'firstNote'
+    }
+  })
+])
+
+runner.sustain(5); // keep 5 users busy to run a scenario
+```
 
 ### Run you code
 

@@ -1,10 +1,8 @@
-import { Action, ActionType } from '../action';
+import { Action, ActionType, Runnable } from '../action';
 import { Context } from '../context';
 import { Logger } from '../log';
 
-export type Callback = (context: Context) => Promise<void>;
-
-export function before(callback: Callback): Action {
+export function before(callback: Runnable): Action {
   return {
     type: ActionType.BEFORE,
     title: 'before',
@@ -14,7 +12,7 @@ export function before(callback: Callback): Action {
   };
 }
 
-export function after(callback: Callback): Action {
+export function after(callback: Runnable): Action {
   return {
     type: ActionType.AFTER,
     title: 'after',
