@@ -128,13 +128,13 @@ export class Meter {
     } as SuccessFields);
   }
 
-  publishHttpKo(response: Response<any>) {
+  publishHttpKo(response: Response<any>, e: Error) {
     this.publish(Metrics.FAILURE, {
       c: 1,
       m: response.request.method,
       u: response.request.url,
       s: response.status,
-      e: 'assertion failure',
+      e: e.message,
     } as FailureFields);
   }
 

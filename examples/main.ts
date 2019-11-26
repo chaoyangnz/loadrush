@@ -1,4 +1,4 @@
-import { runner } from 'loadflux';
+import { runner } from '../src';
 // import './scenarios/sample';
 import './scenarios/composer-story-flow';
 

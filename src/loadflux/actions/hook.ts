@@ -7,7 +7,15 @@ export function before(callback: Runnable): Action {
     type: ActionType.BEFORE,
     title: 'before',
     run: async (context: Context) => {
-      await callback(context);
+      try {
+        await callback(context);
+      } catch (e) {
+        new Logger('loadflux:before').log(
+          `Error occurred at before hook of ${context.$scenario.name}`,
+          e,
+        );
+        throw e;
+      }
     },
   };
 }
@@ -20,10 +28,11 @@ export function after(callback: Runnable): Action {
       try {
         await callback(context);
       } catch (e) {
-        new Logger('loadflux:before').log(
+        new Logger('loadflux:after').log(
           `Error occurred at after hook of ${context.$scenario.name}`,
           e,
         );
+        throw e;
       }
     },
   };

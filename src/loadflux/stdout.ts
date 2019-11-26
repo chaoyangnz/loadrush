@@ -1,6 +1,6 @@
 import fs from 'fs';
 
-export function hookStream(
+function hookStream(
   stream: NodeJS.WriteStream,
   callback: (str: any, encoding: any, fd: any) => void,
 ) {

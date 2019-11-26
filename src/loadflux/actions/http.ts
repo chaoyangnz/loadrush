@@ -1,4 +1,6 @@
-import { cloneDeep } from 'lodash';
+import { cloneDeep, isFunction } from 'lodash';
+import mimeTypes from 'mime-types';
+import { parse } from 'content-type';
 import { Action, ActionType, Callable } from '../action';
 import { Context } from '../context';
 import { Request, Response } from '../http-client';
@@ -10,6 +12,7 @@ export type RequestSpec = {
   url: Template;
   data?: any | Callable<any>;
   cookie?: { [key: string]: Template };
+  authorization?: string;
   expect?: ExpectSpec | ExpectCallable;
   capture?: CaptureSpec[];
   beforeRequest?: BeforeRequestCallback;
@@ -34,8 +37,8 @@ export interface HtmlBodyCapture {
 export type CaptureSpec = JsonBodyCapture | HtmlBodyCapture | HeaderCapture;
 
 export interface ExpectSpec {
-  status: number;
-  contentType: 'json' | 'html';
+  status?: number;
+  mime?: 'json' | 'html' | 'bin';
 }
 
 export type ExpectCallable = (
@@ -63,10 +66,12 @@ export function request(requestSpec: RequestSpec): Action {
       const spec = cloneDeep(requestSpec);
 
       const method = spec.method;
-      const headers = spec.headers;
+      const headers = spec.headers || [];
 
       // handle URL if it is a template
       const url = context.renderTemplate(spec.url);
+
+      // -----------------------------------------------------------------
       if (spec.beforeRequest) {
         try {
           await spec.beforeRequest(spec, context);
@@ -78,6 +83,7 @@ export function request(requestSpec: RequestSpec): Action {
           throw e;
         }
       }
+      // -------------------- hook before response ----------------------
 
       // handle cookie
       if (spec.cookie) {
@@ -86,12 +92,18 @@ export function request(requestSpec: RequestSpec): Action {
         });
       }
 
+      // handle authorization
+      if (spec.authorization) {
+        headers.Authorization = spec.authorization;
+      }
+
       // handle data if it is a function
       let data = spec.data;
-      if (spec.data && typeof spec.data === 'function') {
+      if (spec.data && isFunction(spec.data)) {
         data = await (spec.data as Callable<any>)(context);
       }
 
+      // populate request config
       const request: Request = {
         url,
         method,
@@ -99,72 +111,70 @@ export function request(requestSpec: RequestSpec): Action {
         headers,
         baseURL: context.$runner.baseUrl,
       };
+
       // before sending request, publish request metric
-      context.$meter.publishHttpReq({
-        ...request,
-        ...{
-          // extra config in AxiosRequestConfig
-        },
-      });
+      context.$meter.publishHttpReq(request);
 
       // start sending request
-      let response: Response<any>;
+      let response!: Response<any>;
       try {
         console.log(method, url);
-        response = await context.$http.request(request);
+        response = await context.$http.request({
+          ...request,
+          ...{
+            // extra config in AxiosRequestConfig
+          },
+        });
       } catch (e) {
-        // when error, publish error metric
-        context.$meter.publishHttpErr(request, e);
-        throw e;
+        err(e, request, context);
       }
 
-      // received response
+      // ~~~~~~ handle expect and assertion ~~~~~~~
       await expect(response, spec.expect, context);
 
-      // handle capture and variable extraction
+      // ~~~~~~ handle capture and variable extraction ~~~~~~~~~
       if (spec.capture) {
         spec.capture.forEach((captureSpec: CaptureSpec) => {
           try {
             capture(response, captureSpec, context);
           } catch (e) {
-            // ignore error, don't rethrow
-            logger.log(
-              `Error occurred when capturing variable as ${captureSpec.as}`,
-              e,
+            fail(
+              `Error occurred when capturing variable as ${captureSpec.as} / ${e.message}`,
+              response,
+              context,
             );
           }
         });
       }
 
-      // hook after response
+      // -------------------- hook after response ----------------------
       if (spec.afterResponse) {
         try {
           await spec.afterResponse(spec, response, context);
         } catch (e) {
+          // don't send metrics
           logger.log(
-            `Error occurred in afterResponse of ${context.$scenario.name} -> ${spec.method} / ${spec.url}`,
+            `Error occurred in afterResponse of ${context.$scenario.name} -> ${spec.method} ${spec.url} / ${e.message}`,
             e,
           );
           throw e;
         }
       }
+      // -----------------------------------------------------------------
     },
   };
 }
 
-export function get(spec: Omit<RequestSpec, 'data'>): Action {
-  spec.method = 'GET';
-  return request(spec);
+export function get(spec: Omit<RequestSpec, 'data' | 'method'>): Action {
+  return request({ ...spec, method: 'GET' });
 }
 
-export function post(spec: RequestSpec): Action {
-  spec.method = 'POST';
-  return request(spec);
+export function post(spec: Omit<RequestSpec, 'method'>): Action {
+  return request({ ...spec, method: 'POST' });
 }
 
-export function put(spec: RequestSpec): Action {
-  spec.method = 'PUT';
-  return request(spec);
+export function put(spec: Omit<RequestSpec, 'method'>): Action {
+  return request({ ...spec, method: 'PUT' });
 }
 
 function capture(
@@ -203,48 +213,74 @@ function capture(
   }
 }
 
-const contentTypes = {
-  json: ['application/json'],
-  html: ['text/html'],
-  text: ['text/plain'],
-};
-
 async function expect(
   response: Response<any>,
   expect: ExpectSpec | ExpectCallable | undefined,
   context: Context,
 ) {
   if (expect) {
-    if (typeof expect === 'function') {
+    if (isFunction(expect)) {
       try {
         await expect(response, context);
       } catch (e) {
-        context.$meter.publishHttpKo(response);
-        throw e;
+        fail(e, response, context);
       }
     } else {
-      if (response.status !== expect.status) {
-        context.$meter.publishHttpKo(response);
-        throw new Error(
-          `assert failure: expect status ${expect.status} but got ${response.status}`,
-        );
+      // if assert status
+      if (expect.status !== undefined) {
+        if (response.status !== expect.status) {
+          fail(
+            `assert failure: expect status ${expect.status} but got ${response.status}`,
+            response,
+            context,
+          );
+        }
       }
-      const contentType = response.headers['Content-Type'];
-      if (!contentTypes[expect.contentType].includes(contentType)) {
-        context.$meter.publishHttpKo(response);
-        throw new Error(
-          `assert failure: expect content type ${expect.contentType} but got ${contentType}`,
-        );
+      // if assert mime type
+      if (expect.mime) {
+        let mime;
+        const contentType = response.headers['Content-Type'];
+        try {
+          mime = parse(contentType).type;
+        } catch (e) {
+          fail(
+            `failure when parsing content type: ${contentType} / ${e.message}`,
+            response,
+            context,
+          );
+        }
+
+        if (!mime || mimeTypes.extension(mime) !== expect.mime) {
+          fail(
+            `assert failure: expect content type ${expect.mime} but got ${mime}`,
+            response,
+            context,
+          );
+        }
       }
     }
     context.$meter.publishHttpOk(response);
   } else {
     // default 2xx, 3xx are regarded as success
     if (response.status < 400) {
-      context.$meter.publishHttpOk(response);
+      succeed(response, context);
     } else {
-      context.$meter.publishHttpKo(response);
-      throw new Error(`not 2xx / 3xx: ${response.status}`);
+      fail(`not 2xx / 3xx: ${response.status}`, response, context);
     }
   }
+}
+
+function err(e: Error, request: Request, context: Context) {
+  context.$meter.publishHttpErr(request, e);
+  throw e;
+}
+
+function fail(e: string | Error, response: Response<any>, context: Context) {
+  const err = e instanceof Error ? e : new Error(e);
+  context.$meter.publishHttpKo(response, err);
+  throw err;
+}
+
+function succeed(response: Response<any>, context: Context) {
+  context.$meter.publishHttpOk(response);
 }
