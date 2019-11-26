@@ -5,11 +5,13 @@ export enum Metrics {
   FAILURE = 'http_ko',
   REQUEST = 'http_req',
   ERROR = 'http_err',
+  RESPONSE_TIME = 'res_time',
   VU = 'vu',
 }
 
 export interface SuccessFields {
   c: number;
+  r: number;
   m: string;
   u: string;
   s: number;
@@ -17,6 +19,7 @@ export interface SuccessFields {
 
 export interface FailureFields {
   c: number;
+  r: number;
   m: string;
   u: string;
   s: number;

@@ -7,6 +7,7 @@ import { Request, Response } from '../http-client';
 import { Logger } from '../log';
 import { queryHtml, queryJson } from '../query';
 import { Template } from '../template';
+import { expectFunc, ExpectFunction } from '../expect';
 
 export type RequestSpec = {
   url: Template;
@@ -42,6 +43,7 @@ export interface ExpectSpec {
 }
 
 export type ExpectCallable = (
+  expect: ExpectFunction,
   response: Response<any>,
   context: Context,
 ) => Promise<void>;
@@ -130,13 +132,13 @@ export function request(requestSpec: RequestSpec): Action {
       }
 
       // ~~~~~~ handle expect and assertion ~~~~~~~
-      await expect(response, spec.expect, context);
+      await handleExpect(response, spec.expect, context);
 
       // ~~~~~~ handle capture and variable extraction ~~~~~~~~~
       if (spec.capture) {
         spec.capture.forEach((captureSpec: CaptureSpec) => {
           try {
-            capture(response, captureSpec, context);
+            handleCapture(response, captureSpec, context);
           } catch (e) {
             fail(
               `Error occurred when capturing variable as ${captureSpec.as} / ${e.message}`,
@@ -177,7 +179,7 @@ export function put(spec: Omit<RequestSpec, 'method'>): Action {
   return request({ ...spec, method: 'PUT' });
 }
 
-function capture(
+function handleCapture(
   response: Response<any>,
   capture: CaptureSpec,
   context: Context,
@@ -213,7 +215,7 @@ function capture(
   }
 }
 
-async function expect(
+async function handleExpect(
   response: Response<any>,
   expect: ExpectSpec | ExpectCallable | undefined,
   context: Context,
@@ -221,7 +223,7 @@ async function expect(
   if (expect) {
     if (isFunction(expect)) {
       try {
-        await expect(response, context);
+        await expect(expectFunc, response, context);
       } catch (e) {
         fail(e, response, context);
       }
