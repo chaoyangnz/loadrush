@@ -9,6 +9,7 @@ import { VU } from './vu';
 export interface Context {
   vars: { [key: string]: any };
   env: { [key: string]: string | number };
+  cookie(name: string, value: string): void;
 }
 
 /**
@@ -63,5 +64,9 @@ export class ContextImpl implements Context {
   renderTemplate(template: Template) {
     const model = { ...this.vars, env: this.env };
     return render(template, model);
+  }
+
+  cookie(name: string, value: string): void {
+    this.$http.cookie(name, value);
   }
 }

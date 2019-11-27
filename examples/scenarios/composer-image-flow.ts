@@ -1,4 +1,15 @@
-import { get, log, post, think, scenario, put, loop } from '../../src';
+import {
+  get,
+  log,
+  post,
+  think,
+  scenario,
+  put,
+  loop,
+  before,
+  Context,
+} from '../../src';
+import { getCookie } from './auth';
 import { createImagePayload, updateImagePayload } from './fixtures/image';
 
 scenario(
@@ -6,11 +17,11 @@ scenario(
     name: 'Image flow',
     weight: 1,
   },
+  before(async (context: Context) => {
+    context.cookie('{{ env.COMPOSER_OAUTH_COOKIE }}', await getCookie(context));
+  }),
   get({
     url: '/',
-    cookie: {
-      M_J_R_S: '{{ env.COMPOSER_COOKIE }}',
-    },
   }),
   log('Logged in the landing page'),
   think(2000),
