@@ -1,10 +1,9 @@
 import { cloneDeep, isFunction } from 'lodash';
-import mimeTypes from 'mime-types';
-import { parse } from 'content-type';
 import { Action, ActionType, Callable } from '../action';
 import { Context } from '../context';
 import { Request, Response } from '../http-client';
 import { Logger } from '../log';
+import { mimeExtension } from '../mime';
 import { queryHtml, queryJson } from '../query';
 import { Template } from '../template';
 import { expectFunc, ExpectFunction } from '../expect';
@@ -240,19 +239,10 @@ async function handleExpect(
       }
       // if assert mime type
       if (expect.mime) {
-        let mime;
         const contentType = response.headers['Content-Type'];
-        try {
-          mime = parse(contentType).type;
-        } catch (e) {
-          fail(
-            `failure when parsing content type: ${contentType} / ${e.message}`,
-            response,
-            context,
-          );
-        }
+        const mime = mimeExtension(contentType);
 
-        if (!mime || mimeTypes.extension(mime) !== expect.mime) {
+        if (mime !== expect.mime) {
           fail(
             `assert failure: expect content type ${expect.mime} but got ${mime}`,
             response,
