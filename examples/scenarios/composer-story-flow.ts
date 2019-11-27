@@ -9,21 +9,21 @@ scenario(
   get({
     url: '/',
     cookie: {
-      M_J_R_S: '{{ $env.COMPOSER_COOKIE }}',
+      M_J_R_S: '{{ env.COMPOSER_COOKIE }}',
     },
   }),
   log('Logged in the landing page'),
   think(2000),
   get({
-    url: '/api/images?sort=-lastUpdated&pageSize=10&pageIndex=1',
+    url: '/api/stories?sort=-lastUpdated&pageSize=10&pageIndex=1',
     capture: [
       {
-        json: 'pageContent[*].{id:id,href:href}', // 'pageContent[*].thumbnailImage.[id,href]',
+        json: 'pageContent[*].thumbnailImage.{id:id,href:href}',
         as: 'thumbnails',
       },
     ],
   }),
-  log('List top 10 stories'),
+  log('List top 10 story assets'),
   loop({ over: 'thumbnails', parallel: false }, [
     get({
       url:

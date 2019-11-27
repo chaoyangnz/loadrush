@@ -7,10 +7,15 @@ import { Logger, Reporter } from './log';
 import { Meter } from './meter';
 import { getEnv } from './util';
 import { Volunteers } from './vu';
-import { Context } from './context';
+import { Context, ContextImpl } from './context';
 import { Scenario } from './scenario';
 
-export class Runner {
+export interface Runner {
+  sustain(size: number): void;
+  ramp(rate: number): void;
+}
+
+export class RunnerImpl implements Runner {
   baseUrl: string;
   poolSize: number;
   env: { [key: string]: string | number } = {};
@@ -21,7 +26,7 @@ export class Runner {
   duration: number;
 
   constructor() {
-    // load .$env $env vars
+    // load .env env vars
     dotenv.config();
 
     this.baseUrl = getEnv(Env.LOADFLUX_BASE_URL, '');
@@ -32,13 +37,18 @@ export class Runner {
     for (const [key, value] of Object.entries(process.env)) {
       this.env[key] = getEnv(key, '');
     }
+    Object.freeze(this.env);
   }
 
   // attach a vu to a scenario
   private async go() {
+    if (this.scenarios.length === 0) {
+      console.error('At least one scenario definition is required');
+      process.exit(-1);
+    }
     const vu = this.vus.checkin();
     const scenario = sample(this.scenarios) as Scenario;
-    const context: Context = new Context(runner, vu, scenario);
+    const context: Context = new ContextImpl(runner, vu, scenario);
 
     this.meter.publishVu(this.vus.active);
 
@@ -71,7 +81,7 @@ export class Runner {
   }
 
   async waterfall(actions: Action[], context: Context) {
-    let ctx = context;
+    let ctx = context as ContextImpl;
     for (const action of actions) {
       const reporter = new Reporter({
         text: ctx.renderTemplate(action.title),
@@ -93,7 +103,7 @@ export class Runner {
   parallel(actions: Action[], context: Context) {
     return Promise.all(
       actions.map((action) => {
-        const ctx = context.clone();
+        const ctx = (context as ContextImpl).clone();
         const reporter = new Reporter({
           text: ctx.renderTemplate(action.title),
           prefixText: '  ',
@@ -127,4 +137,4 @@ export class Runner {
   }
 }
 
-export const runner = new Runner();
+export const runner: Runner = new RunnerImpl();

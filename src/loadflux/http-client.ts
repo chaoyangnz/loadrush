@@ -1,4 +1,5 @@
 import axios, { AxiosInstance, AxiosRequestConfig, Method } from 'axios';
+import FormData from 'form-data';
 // @ts-ignore
 import { XMLHttpRequest } from 'xmlhttprequest';
 
@@ -47,11 +48,21 @@ export class HttpClient {
     // disable status validation by default
     instance.defaults.validateStatus = (status) => true;
     instance.defaults.withCredentials = true;
+    // instance.defaults.timeout = 20_000;
+    instance.defaults.maxContentLength = Infinity;
 
     this.instance = instance;
   }
 
   async request(requestConfig: AxiosRequestConfig): Promise<Response<any>> {
+    if (requestConfig.data instanceof FormData) {
+      const formData = requestConfig.data;
+      requestConfig.headers = {
+        ...requestConfig.headers,
+        ...formData.getHeaders(),
+      };
+      requestConfig.data = formData.getBuffer();
+    }
     const response = await this.instance.request(requestConfig);
     // transform response
     return {
@@ -66,5 +77,6 @@ export class HttpClient {
 
   cookie(name: string, value: string) {
     this.instance.defaults.headers.Cookie = `${name}=${value}`;
+    this.instance.defaults.headers['User-Agent'] = 'Loadflux/axios';
   }
 }

@@ -5,7 +5,7 @@ const MILLISECONDS_PER_SECOND = 1e3;
 const NANOSECONDS_PER_SECOND = 1e9;
 
 export class Stopwatch {
-  private stopwatch: Stopwatch_;
+  stopwatch: Stopwatch_;
 
   constructor() {
     this.stopwatch = new Stopwatch_(true);
