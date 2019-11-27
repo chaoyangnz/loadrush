@@ -4,9 +4,37 @@ export enum Metrics {
   SUCCESS = 'http_ok',
   FAILURE = 'http_ko',
   REQUEST = 'http_req',
+  RESPONSE = 'http_res',
   ERROR = 'http_err',
-  RESPONSE_TIME = 'res_time',
   VU = 'vu',
+}
+
+export interface RequestFields {
+  c: number;
+  m: string;
+  u: string;
+  vu: number;
+}
+
+export interface ResponseFields {
+  c: number;
+  m: string;
+  u: string;
+  s: number;
+  vu: number;
+  // st: number;
+  // lt: number;
+  // ct: number;
+  rt: number;
+  // et: number;
+}
+
+export interface ErrorFields {
+  c: number;
+  m: string;
+  u: string;
+  e: string;
+  vu: number;
 }
 
 export interface SuccessFields {
@@ -15,11 +43,6 @@ export interface SuccessFields {
   m: string;
   u: string;
   s: number;
-  // st: number;
-  // lt: number;
-  // ct: number;
-  rt: number;
-  // et: number;
 }
 
 export interface FailureFields {
@@ -29,34 +52,17 @@ export interface FailureFields {
   u: string;
   s: number;
   e: string;
-  // st: number;
-  // lt: number;
-  // ct: number;
-  rt: number;
-  // et: number;
-}
-
-export interface RequestFields {
-  c: number;
-  m: string;
-  u: string;
-}
-
-export interface ErrorFields {
-  c: number;
-  m: string;
-  u: string;
-  e: string;
 }
 
 export interface VUFields {
-  a: number;
+  vu: number;
 }
 
 export type Fields =
   | RequestFields
+  | ResponseFields
+  | ErrorFields
   | SuccessFields
   | FailureFields
-  | ErrorFields
   | VUFields
   | KV;

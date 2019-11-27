@@ -9,6 +9,7 @@ import {
   Fields,
   Metrics,
   RequestFields,
+  ResponseFields,
   SuccessFields,
   VUFields,
 } from './metrics';
@@ -111,12 +112,27 @@ export class Meter {
     });
   }
 
-  publishHttpReq(request: Request) {
+  publishHttpReq(request: Request, vu: number) {
     this.publish(Metrics.REQUEST, {
       c: 1,
       m: request.method,
       u: request.url,
+      vu,
     } as RequestFields);
+  }
+
+  publishHttpRes(response: Response<any>, vu: number) {
+    this.publish(Metrics.RESPONSE, {
+      c: 1,
+      m: response.request.method,
+      u: response.request.url,
+      vu,
+      // st: response.timings.socket,
+      // lt: response.timings.lookup,
+      // ct: response.timings.connect,
+      rt: response.timings.response ? response.timings.response.toFixed(0) : -1,
+      // et: response.timings.end,
+    } as ResponseFields);
   }
 
   publishHttpOk(response: Response<any>) {
@@ -125,11 +141,6 @@ export class Meter {
       m: response.request.method,
       u: response.request.url,
       s: response.status,
-      // st: response.timings.socket,
-      // lt: response.timings.lookup,
-      // ct: response.timings.connect,
-      rt: response.timings.response ? response.timings.response.toFixed(0) : -1,
-      // et: response.timings.end,
     } as SuccessFields);
   }
 
@@ -140,11 +151,6 @@ export class Meter {
       u: response.request.url,
       s: response.status,
       e: e.message,
-      // st: response.timings.socket,
-      // lt: response.timings.lookup,
-      // ct: response.timings.connect,
-      rt: response.timings.response,
-      // et: response.timings.end,
     } as FailureFields);
   }
 
@@ -157,8 +163,8 @@ export class Meter {
     } as ErrorFields);
   }
 
-  publishVu(count: number) {
-    this.publish(Metrics.VU, { a: count } as VUFields);
+  publishVu(vu: number) {
+    this.publish(Metrics.VU, { vu } as VUFields);
   }
 
   // <measurement>[,<tag_key>=<tag_value>[,<tag_key>=<tag_value>]] <field_key>=<field_value>[,<field_key>=<field_value>] [<timestamp>]

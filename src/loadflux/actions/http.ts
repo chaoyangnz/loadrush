@@ -117,7 +117,7 @@ export function request(requestSpec: RequestSpec): Action {
       };
 
       // before sending request, publish request metric
-      ctx.$meter.publishHttpReq(request);
+      ctx.$meter.publishHttpReq(request, ctx.$runner.vus.active);
 
       // start sending request
       let response!: Response<any>;
@@ -132,6 +132,8 @@ export function request(requestSpec: RequestSpec): Action {
       } catch (e) {
         err(e, request, ctx);
       }
+
+      ctx.$meter.publishHttpRes(response, ctx.$runner.vus.active);
 
       // ~~~~~~ handle expect and assertion ~~~~~~~
       await handleExpect(response, spec.expect, ctx);
