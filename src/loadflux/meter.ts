@@ -125,6 +125,11 @@ export class Meter {
       m: response.request.method,
       u: response.request.url,
       s: response.status,
+      // st: response.timings.socket,
+      // lt: response.timings.lookup,
+      // ct: response.timings.connect,
+      rt: response.timings.response ? response.timings.response.toFixed(0) : -1,
+      // et: response.timings.end,
     } as SuccessFields);
   }
 
@@ -135,6 +140,11 @@ export class Meter {
       u: response.request.url,
       s: response.status,
       e: e.message,
+      // st: response.timings.socket,
+      // lt: response.timings.lookup,
+      // ct: response.timings.connect,
+      rt: response.timings.response,
+      // et: response.timings.end,
     } as FailureFields);
   }
 

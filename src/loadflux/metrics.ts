@@ -15,6 +15,11 @@ export interface SuccessFields {
   m: string;
   u: string;
   s: number;
+  // st: number;
+  // lt: number;
+  // ct: number;
+  rt: number;
+  // et: number;
 }
 
 export interface FailureFields {
@@ -24,6 +29,11 @@ export interface FailureFields {
   u: string;
   s: number;
   e: string;
+  // st: number;
+  // lt: number;
+  // ct: number;
+  rt: number;
+  // et: number;
 }
 
 export interface RequestFields {

@@ -1,7 +1,6 @@
 import axios, { AxiosInstance, AxiosRequestConfig, Method } from 'axios';
 import FormData from 'form-data';
-// @ts-ignore
-import { XMLHttpRequest } from 'xmlhttprequest';
+import { addAxiosTiming, TimingData } from './timing';
 
 export interface Request {
   url?: string;
@@ -37,7 +36,14 @@ export interface Response<T> {
   statusText: string;
   headers: any;
   request: Request;
-  xhr?: XMLHttpRequest;
+  // xhr?: XMLHttpRequest;
+  timings: {
+    socket?: number;
+    lookup?: number;
+    connect?: number;
+    response?: number;
+    end?: number;
+  };
 }
 
 export class HttpClient {
@@ -50,6 +56,8 @@ export class HttpClient {
     instance.defaults.withCredentials = true;
     // instance.defaults.timeout = 20_000;
     instance.defaults.maxContentLength = Infinity;
+
+    addAxiosTiming(instance);
 
     this.instance = instance;
   }
@@ -71,7 +79,9 @@ export class HttpClient {
       statusText: response.statusText,
       headers: response.headers,
       request: response.config,
-      xhr: response.request,
+      // xhr: response.request,
+      // @ts-ignore
+      timings: response.timings,
     };
   }
 
