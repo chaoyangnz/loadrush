@@ -16,10 +16,10 @@ export class Volunteers {
   checkin(): VU {
     let vu = 1;
     while (true) {
-      if (this.bitset.isEmpty(vu)) {
+      if (!this.bitset.has(vu)) {
         break;
       }
-      if (vu === Number.MAX_VALUE) {
+      if (vu === 10_000) {
         console.warn('You set too high work load and no user can be available');
         process.exit(-1);
       }
