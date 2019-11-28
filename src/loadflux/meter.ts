@@ -39,10 +39,7 @@ export class Meter {
   constructor() {
     this.org = getEnv(Env.LOADFLUX_INFLUXDB_ORG, '');
     this.bucket = getEnv(Env.LOADFLUX_TEST_ID, String(Date.now()));
-    this.api = getEnv(
-      Env.LOADFLUX_INFLUXDB_API,
-      'https://us-west-2-1.aws.cloud2.influxdata.com/api/v2',
-    );
+    this.api = getEnv(Env.LOADFLUX_INFLUXDB_API, '');
 
     if (!this.org || !this.bucket || !this.api) {
       console.warn(
@@ -71,6 +68,7 @@ export class Meter {
             ],
           })
           .then((bucket: IBucket) => {
+            this.logger.log('created a bucket');
             resolve(bucket);
           })
           .catch((err) => {
@@ -84,8 +82,10 @@ export class Meter {
         .then((buckets: IBucket[]) => {
           const bucket = buckets.find((bucket) => bucket.name === this.bucket);
           if (bucket) {
+            this.logger.log('bucket exists');
             resolve(bucket);
           } else {
+            this.logger.log('bucket does not exist');
             createBucket();
           }
         })
@@ -107,7 +107,7 @@ export class Meter {
       const data = this.build(measurement, fields, tags, timestamp);
       this.logger.log(data);
       this.client.write.create(this.org, this.bucket, data).catch((e) => {
-        console.warn('Error occurred when sending metrics', e);
+        console.log('Error occurred when sending metrics', e);
       });
     });
   }

@@ -58,9 +58,8 @@ export class HttpClient {
     // instance.defaults.timeout = 20_000;
     instance.defaults.maxContentLength = Infinity;
 
-    // disable ssl certificate verification
-    // const httpsAgent: https.Agent = instance.defaults.httpsAgent();
-    // httpsAgent.options.rejectUnauthorized = false;
+    // not validate the self-signed certificate
+    process.env.NODE_TLS_REJECT_UNAUTHORIZED = '0';
 
     addAxiosTiming(instance);
 

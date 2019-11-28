@@ -27,7 +27,7 @@ We integrate [InfluxDB](https://www.influxdata.com/) and send real-time measurem
 Some basic metrics like requests/success/failure count, mean response time, RPS, active virtual users etc can be monitored in its platform.
 We choose InfluxDB as it has an intuitive UI and easy to integrate. But we will add more integrations to other monitoring platforms in the future.
 
-![](https://i.imgur.com/TSvIJHa.gif)
+![](https://i.imgur.com/JA7Ul7q.gif)
 
 ## Concepts
 
