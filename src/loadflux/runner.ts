@@ -57,7 +57,7 @@ export class DefaultRunner implements Runner {
     this.registerScenarios();
     const vu = this.vus.checkin();
     const scenario = sample(this.scenarios) as Scenario;
-    const context: Context = new ActionContext(runner, vu, scenario);
+    const context = new ActionContext(runner, vu, scenario);
 
     this.meter.publishVu(this.vus.active);
 
@@ -89,8 +89,8 @@ export class DefaultRunner implements Runner {
     }
   }
 
-  async waterfall(actions: Action[], context: Context) {
-    let ctx = context as ActionContext;
+  async waterfall(actions: Action[], context: ActionContext) {
+    let ctx = context;
     for (const action of actions) {
       const reporter = new Reporter({
         text: ctx.renderTemplate(action.title),
@@ -109,13 +109,13 @@ export class DefaultRunner implements Runner {
     }
   }
 
-  parallel(actions: Action[], context: Context) {
+  parallel(actions: Action[], context: ActionContext) {
     return Promise.all(
       actions.map((action) => {
-        const ctx = (context as ActionContext).clone();
+        const ctx = context.clone();
         const reporter = new Reporter({
           text: ctx.renderTemplate(action.title),
-          prefixText: '  ',
+          indent: 2,
         }).start();
         return action
           .run(ctx)
