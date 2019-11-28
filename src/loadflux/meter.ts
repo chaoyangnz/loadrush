@@ -103,13 +103,17 @@ export class Meter {
     tags?: KV,
   ) {
     // 'mem,host=host1 used_percent=23.43234543 1556896326'; // Line protocol string
-    this.bucketExisted.then(() => {
-      const data = this.build(measurement, fields, tags, timestamp);
-      this.logger.log(data);
-      this.client.write.create(this.org, this.bucket, data).catch((e) => {
-        this.logger.log('Error occurred when sending metrics', e);
+    this.bucketExisted
+      .then(() => {
+        const data = this.build(measurement, fields, tags, timestamp);
+        this.logger.log(data);
+        this.client.write.create(this.org, this.bucket, data).catch((e) => {
+          this.logger.log('Error occurred when sending metrics', e);
+        });
+      })
+      .catch((e) => {
+        this.logger.log('Error when getting or creating a bucket');
       });
-    });
   }
 
   publishHttpReq(request: Request, vu: number) {

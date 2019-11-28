@@ -3,4 +3,4 @@ import { runner } from '../src';
 import './scenarios/composer-story-flow';
 import './scenarios/composer-image-flow';
 
-runner.sustain(1);
+runner.sustain(2);
