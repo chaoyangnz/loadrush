@@ -1,7 +1,7 @@
 import { cloneDeep, isFunction } from 'lodash';
 import FormData from 'form-data';
 import { Action, ActionType, Callable } from '../action';
-import { Context, ContextImpl } from '../context';
+import { ActionContext, Context } from '../context';
 import { Request, Response } from '../http-client';
 import { Logger } from '../log';
 import { mimeExtension } from '../mime';
@@ -63,24 +63,23 @@ export function request(requestSpec: RequestSpec): Action {
   return {
     type: ActionType.STEP,
     title: `${requestSpec.method} ${requestSpec.url}`,
-    run: async (context: Context) => {
-      const ctx = context as ContextImpl;
-      const logger = new Logger('loadflux:http');
+    run: async (context: ActionContext) => {
+      const logger = new Logger('loadflux:action:http');
       const spec = cloneDeep(requestSpec);
 
       const method = spec.method;
       const headers = spec.headers || {};
 
       // handle URL if it is a template
-      const url = ctx.renderTemplate(spec.url);
+      const url = context.renderTemplate(spec.url);
 
       // -----------------------------------------------------------------
       if (spec.beforeRequest) {
         try {
-          await spec.beforeRequest(spec, ctx);
+          await spec.beforeRequest(spec, context);
         } catch (e) {
           logger.log(
-            `Error occurred in beforeRequest of ${ctx.$scenario.name} -> ${spec.method} / ${spec.url}`,
+            `Error occurred in beforeRequest of ${context.$scenario.name} -> ${spec.method} / ${spec.url}`,
             e,
           );
           throw e;
@@ -91,7 +90,7 @@ export function request(requestSpec: RequestSpec): Action {
       // handle cookie
       if (spec.cookie) {
         Object.entries(spec.cookie).forEach(([name, value]) => {
-          ctx.$http.cookie(name, ctx.renderTemplate(value));
+          context.$http.cookie(name, context.renderTemplate(value));
         });
       }
 
@@ -112,42 +111,42 @@ export function request(requestSpec: RequestSpec): Action {
         method,
         data,
         headers,
-        baseURL: ctx.$runner.baseUrl,
+        baseURL: context.$runner.baseUrl,
         timeout: spec.timeout,
       };
 
       // before sending request, publish request metric
-      ctx.$meter.publishHttpReq(request, ctx.$runner.vus.active);
+      context.$meter.publishHttpReq(request, context.$runner.vus.active);
 
       // start sending request
       let response!: Response<any>;
       try {
-        console.log(method, url);
-        response = await ctx.$http.request({
+        logger.log(method!, url);
+        response = await context.$http.request({
           ...request,
           ...{
             // extra config in AxiosRequestConfig
           },
         });
       } catch (e) {
-        err(e, request, ctx);
+        err(e, request, context);
       }
 
-      ctx.$meter.publishHttpRes(response, ctx.$runner.vus.active);
+      context.$meter.publishHttpRes(response, context.$runner.vus.active);
 
       // ~~~~~~ handle expect and assertion ~~~~~~~
-      await handleExpect(response, spec.expect, ctx);
+      await handleExpect(response, spec.expect, context);
 
       // ~~~~~~ handle capture and variable extraction ~~~~~~~~~
       if (spec.capture) {
         spec.capture.forEach((captureSpec: CaptureSpec) => {
           try {
-            handleCapture(response, captureSpec, ctx);
+            handleCapture(response, captureSpec, context);
           } catch (e) {
             fail(
               `Error occurred when capturing variable as ${captureSpec.as} / ${e.message}`,
               response,
-              ctx,
+              context,
             );
           }
         });
@@ -156,11 +155,11 @@ export function request(requestSpec: RequestSpec): Action {
       // -------------------- hook after response ----------------------
       if (spec.afterResponse) {
         try {
-          await spec.afterResponse(spec, response, ctx);
+          await spec.afterResponse(spec, response, context);
         } catch (e) {
           // don't send metrics
           logger.log(
-            `Error occurred in afterResponse of ${ctx.$scenario.name} -> ${spec.method} ${spec.url} / ${e.message}`,
+            `Error occurred in afterResponse of ${context.$scenario.name} -> ${spec.method} ${spec.url} / ${e.message}`,
             e,
           );
           throw e;
@@ -222,9 +221,8 @@ function handleCapture(
 async function handleExpect(
   response: Response<any>,
   expect: ExpectSpec | ExpectCallable | undefined,
-  ctx: Context,
+  context: ActionContext,
 ) {
-  const context = ctx as ContextImpl;
   if (expect) {
     if (isFunction(expect)) {
       try {
@@ -268,20 +266,21 @@ async function handleExpect(
   }
 }
 
-function err(e: Error, request: Request, ctx: Context) {
-  const context = ctx as ContextImpl;
+function err(e: Error, request: Request, context: ActionContext) {
   context.$meter.publishHttpErr(request, e);
   throw e;
 }
 
-function fail(e: string | Error, response: Response<any>, ctx: Context) {
-  const context = ctx as ContextImpl;
+function fail(
+  e: string | Error,
+  response: Response<any>,
+  context: ActionContext,
+) {
   const err = e instanceof Error ? e : new Error(e);
   context.$meter.publishHttpKo(response, err);
   throw err;
 }
 
-function succeed(response: Response<any>, ctx: Context) {
-  const context = ctx as ContextImpl;
+function succeed(response: Response<any>, context: ActionContext) {
   context.$meter.publishHttpOk(response);
 }

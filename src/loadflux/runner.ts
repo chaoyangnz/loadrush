@@ -7,15 +7,15 @@ import { Logger, Reporter } from './log';
 import { Meter } from './meter';
 import { getEnv } from './util';
 import { Volunteers } from './vu';
-import { Context, ContextImpl } from './context';
-import { Scenario } from './scenario';
+import { Context, ActionContext } from './context';
+import { Scenario, scenarios } from './scenario';
 
 export interface Runner {
   sustain(size: number): void;
   ramp(rate: number): void;
 }
 
-export class RunnerImpl implements Runner {
+export class DefaultRunner implements Runner {
   baseUrl: string;
   env: { [key: string]: string | number } = {};
 
@@ -23,6 +23,8 @@ export class RunnerImpl implements Runner {
   vus: Volunteers;
   meter: Meter;
   duration: number;
+
+  isScenariosRegistered = false;
 
   constructor() {
     // load .env env vars
@@ -38,15 +40,24 @@ export class RunnerImpl implements Runner {
     Object.freeze(this.env);
   }
 
-  // attach a vu to a scenario
-  private async go() {
+  private registerScenarios() {
+    if (this.isScenariosRegistered) {
+      return;
+    }
+    this.scenarios.push(...scenarios);
+    this.isScenariosRegistered = true;
     if (this.scenarios.length === 0) {
       console.error('At least one scenario definition is required');
       process.exit(-1);
     }
+  }
+
+  // attach a vu to a scenario
+  private async go() {
+    this.registerScenarios();
     const vu = this.vus.checkin();
     const scenario = sample(this.scenarios) as Scenario;
-    const context: Context = new ContextImpl(runner, vu, scenario);
+    const context: Context = new ActionContext(runner, vu, scenario);
 
     this.meter.publishVu(this.vus.active);
 
@@ -79,7 +90,7 @@ export class RunnerImpl implements Runner {
   }
 
   async waterfall(actions: Action[], context: Context) {
-    let ctx = context as ContextImpl;
+    let ctx = context as ActionContext;
     for (const action of actions) {
       const reporter = new Reporter({
         text: ctx.renderTemplate(action.title),
@@ -101,7 +112,7 @@ export class RunnerImpl implements Runner {
   parallel(actions: Action[], context: Context) {
     return Promise.all(
       actions.map((action) => {
-        const ctx = (context as ContextImpl).clone();
+        const ctx = (context as ActionContext).clone();
         const reporter = new Reporter({
           text: ctx.renderTemplate(action.title),
           prefixText: '  ',
@@ -135,4 +146,4 @@ export class RunnerImpl implements Runner {
   }
 }
 
-export const runner: Runner = new RunnerImpl();
+export const runner: Runner = new DefaultRunner();

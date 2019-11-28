@@ -1,5 +1,5 @@
 import { Action, ActionType } from '../action';
-import { Context, ContextImpl } from '../context';
+import { ActionContext } from '../context';
 
 export interface LoopSpec {
   over: string;
@@ -12,8 +12,8 @@ export function loop(spec: LoopSpec, actions: Action[]): Action {
   return {
     type: ActionType.STEP,
     title: `loop over ${spec.over}`,
-    run: async (ctx: Context) => {
-      const context = ctx as ContextImpl;
+    run: async (ctx: ActionContext) => {
+      const context = ctx as ActionContext;
       const iterable: any[] = context.vars[spec.over];
       if (!spec.parallel) {
         for (const item of iterable) {

@@ -1,5 +1,4 @@
 import { Action, ActionType } from './action';
-import { runner, RunnerImpl } from './runner';
 
 export interface ScenarioSpec {
   name: string;
@@ -28,8 +27,10 @@ export class Scenario {
   }
 }
 
+export const scenarios: Scenario[] = [];
+
 // register a scenario
 export function scenario(spec: ScenarioSpec, ...flow: Action[]) {
   const scenario = new Scenario(spec, flow);
-  (runner as RunnerImpl).scenarios.push(scenario);
+  scenarios.push(scenario);
 }

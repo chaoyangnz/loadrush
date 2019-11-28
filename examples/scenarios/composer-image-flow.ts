@@ -18,7 +18,7 @@ scenario(
     weight: 1,
   },
   before(async (context: Context) => {
-    context.cookie('{{ env.COMPOSER_OAUTH_COOKIE }}', await getCookie(context));
+    context.cookie('M_J_R_S', await getCookie(context));
   }),
   get({
     url: '/',

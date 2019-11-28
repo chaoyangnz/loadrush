@@ -58,10 +58,10 @@ export class HttpClient {
     // instance.defaults.timeout = 20_000;
     instance.defaults.maxContentLength = Infinity;
 
+    // addAxiosTiming(this.instance);
+
     // not validate the self-signed certificate
     process.env.NODE_TLS_REJECT_UNAUTHORIZED = '0';
-
-    addAxiosTiming(instance);
 
     this.instance = instance;
   }
@@ -73,10 +73,18 @@ export class HttpClient {
         ...requestConfig.headers,
         ...formData.getHeaders(),
       };
-      console.warn(requestConfig.headers);
       requestConfig.data = formData.getBuffer();
     }
+
     const response = await this.instance.request(requestConfig);
+    // @ts-ignore
+    response.timings = {
+      socket: 0,
+      lookup: 0,
+      connect: 0,
+      response: 0,
+      end: 0,
+    };
     // transform response
     return {
       data: response.data,
@@ -92,6 +100,6 @@ export class HttpClient {
 
   cookie(name: string, value: string) {
     this.instance.defaults.headers.Cookie = `${name}=${value}`;
-    this.instance.defaults.headers['User-Agent'] = 'Loadflux/axios';
+    this.instance.defaults.headers['User-Agent'] = 'Loadflux/Axios';
   }
 }

@@ -1,4 +1,4 @@
-import { Context } from './context';
+import { ActionContext, Context } from './context';
 import { Template } from './template';
 
 export enum ActionType {
@@ -11,8 +11,10 @@ export type Runnable = (context: Context) => Promise<void>;
 
 export type Callable<T> = (context: Context) => Promise<T>;
 
+export type ActionRunnable = (context: ActionContext) => Promise<void>;
+
 export interface Action {
   type: ActionType;
   title: Template;
-  run: Runnable;
+  run: ActionRunnable;
 }
