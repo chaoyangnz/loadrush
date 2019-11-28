@@ -49,7 +49,7 @@ export class Bitset {
   }
 
   // Return true if no bit is set
-  isEmpty(index: number) {
+  isEmpty() {
     const c = this.words.length;
     for (let i = 0; i < c; i++) {
       if (this.words[i] !== 0) {
