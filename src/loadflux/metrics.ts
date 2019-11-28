@@ -22,11 +22,10 @@ export interface ResponseFields {
   u: string;
   s: number;
   vu: number;
-  // st: number;
-  // lt: number;
-  // ct: number;
+  st: number;
+  lt: number;
+  ct: number;
   rt: number;
-  // et: number;
 }
 
 export interface ErrorFields {

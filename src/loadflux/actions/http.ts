@@ -99,19 +99,19 @@ export function request(requestSpec: RequestSpec): Action {
         headers.Authorization = spec.authorization;
       }
 
-      // handle data if it is a function
-      let data = spec.data;
+      // handle body if it is a function
+      let body = spec.data;
       if (spec.data && isFunction(spec.data)) {
-        data = await (spec.data as Callable<any>)(context);
+        body = await (spec.data as Callable<any>)(context);
       }
 
       // populate request config
       const request: Request = {
         url,
         method,
-        data,
+        body,
         headers,
-        baseURL: context.$runner.baseUrl,
+        baseUrl: context.$runner.baseUrl,
         timeout: spec.timeout,
       };
 
@@ -122,7 +122,7 @@ export function request(requestSpec: RequestSpec): Action {
       let response!: Response<any>;
       try {
         logger.log(method!, url);
-        response = await context.$http.request({
+        response = await context.$http.request(url, {
           ...request,
           ...{
             // extra config in AxiosRequestConfig
@@ -187,7 +187,7 @@ function handleCapture(
   capture: CaptureSpec,
   context: Context,
 ) {
-  const body = response.data;
+  const body = response.body;
 
   // @ts-ignore
   if (capture.json) {
