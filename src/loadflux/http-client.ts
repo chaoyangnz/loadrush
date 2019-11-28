@@ -1,4 +1,5 @@
 import axios, { AxiosInstance, AxiosRequestConfig, Method } from 'axios';
+import https from 'https';
 import FormData from 'form-data';
 import { addAxiosTiming, TimingData } from './timing';
 
@@ -57,6 +58,10 @@ export class HttpClient {
     // instance.defaults.timeout = 20_000;
     instance.defaults.maxContentLength = Infinity;
 
+    // disable ssl certificate verification
+    // const httpsAgent: https.Agent = instance.defaults.httpsAgent();
+    // httpsAgent.options.rejectUnauthorized = false;
+
     addAxiosTiming(instance);
 
     this.instance = instance;
@@ -69,6 +74,7 @@ export class HttpClient {
         ...requestConfig.headers,
         ...formData.getHeaders(),
       };
+      console.warn(requestConfig.headers);
       requestConfig.data = formData.getBuffer();
     }
     const response = await this.instance.request(requestConfig);

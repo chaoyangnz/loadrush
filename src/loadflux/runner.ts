@@ -17,7 +17,6 @@ export interface Runner {
 
 export class RunnerImpl implements Runner {
   baseUrl: string;
-  poolSize: number;
   env: { [key: string]: string | number } = {};
 
   scenarios: Scenario[] = [];
@@ -30,9 +29,8 @@ export class RunnerImpl implements Runner {
     dotenv.config();
 
     this.baseUrl = getEnv(Env.LOADFLUX_BASE_URL, '');
-    this.poolSize = getEnv<number>(Env.LOADFLUX_VU_POOL_SIZE, 10_000);
     this.duration = getEnv<number>(Env.LOADFLUX_DURATION, 600);
-    this.vus = new Volunteers(this.poolSize);
+    this.vus = new Volunteers();
     this.meter = new Meter();
     for (const [key, value] of Object.entries(process.env)) {
       this.env[key] = getEnv(key, '');

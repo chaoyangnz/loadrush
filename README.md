@@ -90,8 +90,6 @@ Just like any other NodeJS application, run it using `node` command line. `Loadf
 
 Environment Variables:
 - General
-    - `LOADFLUX_VU_POOL_SIZE`: define the maximum of virtual users can be available. These users are volunteers, which does
-    not necessarily mean all of them will participate in the execution of your scenarios. You decide how many virtual users are planned by your testing strategy.
     - `LOADFLUX_DURATION`: how long you plan to run your load testing.
     - `LOADFLUX_BASE_URL`: the base url of your application. If you don't set, you have to use absolute URL in your http action.
     - `LOADFLUX_TEST_ID`: the test id (16 chars at most) used for different iteration of your testing. Default: current timestamp since unix epoch.
@@ -117,6 +115,8 @@ You can run the command line: `tail -f loadflux.log` to keep the file open to di
 All the data is collected in `InfluxDB` if you set up the account beforehand. Then you can filter and aggregate time-series data, and end up with fancy charts.
 If you like, build a dashboard and keep monitoring. All these things are depending on your Data processing skills.
 
+You can easily set up a InfluxDB in your cluster. Please check `influxdb` folder where there are some kubernetes resource to help you deploy an influxDB in your kubernetes cluster.
+We set up a public one: https://data.loadflux.io
 
 ## Roadmap
 

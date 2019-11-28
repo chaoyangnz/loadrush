@@ -1,0 +1,16 @@
+apiVersion: v1
+kind: Service
+metadata:
+  labels:
+    app: influxdb
+    version: 2.0.0-alpha
+  name: influxdb-service
+spec:
+  type: LoadBalancer
+  ports:
+    - protocol: TCP
+      port: 80
+      targetPort: 9999
+  selector:
+    app: influxdb
+    version: 2.0.0-alpha
