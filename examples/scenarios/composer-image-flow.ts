@@ -42,6 +42,7 @@ scenario(
     }),
   ]),
   log('Request thumbnail images'),
+  think(2000),
   post({
     url: '/api/images',
     data: createImagePayload(),
@@ -79,4 +80,5 @@ scenario(
       '/api/images?q=(_search=in=%22loadinflux%22%20and%20lastUpdated%3E%3D2019-09-29T22:39:10Z)&sort=-lastUpdated&pageSize=10&pageIndex=0',
   }),
   log('Search a list of image assets'),
+  think(2000),
 );

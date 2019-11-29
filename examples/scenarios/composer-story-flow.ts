@@ -41,6 +41,7 @@ scenario(
         '/api/images/{{ $loopElement.id }}/blob?href={{ $loopElement.href }}',
     }),
   ]),
+  think(2000),
   post({
     url: '/api/stories',
     data: createStoryPayload(),
@@ -78,4 +79,5 @@ scenario(
       '/api/stories?q=(_search=in=%22loadinflux%22%20and%20lastUpdated%3E%3D2019-09-29T22:39:10Z)&sort=-lastUpdated&pageSize=10&pageIndex=0',
   }),
   log('Search a list of stories'),
+  think(2000),
 );
