@@ -1,5 +1,5 @@
 import got, { Got, Options, Method } from 'got';
-import { mimeExtension } from './mime';
+import { mimeExtension } from './actions/http/mime';
 import { Template } from './template';
 import { Readable } from 'stream';
 import FormData = require('form-data');

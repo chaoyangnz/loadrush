@@ -17,14 +17,14 @@ export function loop(spec: LoopSpec, actions: Action[]): Action {
       if (!spec.parallel) {
         for (const item of iterable) {
           context.vars.$loopElement = item;
-          await context.$runner.waterfall(actions, context);
+          await context.runner.waterfall(actions, context);
         }
         delete context.vars.$loopElement;
       } else {
         await Promise.all(
           iterable.map((item) => {
             context.vars.$loopElement = item;
-            return context.$runner.waterfall(actions, context);
+            return context.runner.waterfall(actions, context);
           }),
         );
       }

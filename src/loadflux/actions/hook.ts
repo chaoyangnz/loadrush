@@ -11,7 +11,7 @@ export function before(callback: Runnable): Action {
         await callback(context);
       } catch (e) {
         new Logger('loadflux:before').log(
-          `Error occurred at before hook of ${context.$scenario.name}`,
+          `Error occurred at before hook of ${context.scenario.name}`,
           e,
         );
         throw e;
@@ -29,7 +29,7 @@ export function after(callback: Runnable): Action {
         await callback(context);
       } catch (e) {
         new Logger('loadflux:after').log(
-          `Error occurred at after hook of ${context.$scenario.name}`,
+          `Error occurred at after hook of ${context.scenario.name}`,
           e,
         );
         throw e;
