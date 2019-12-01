@@ -53,8 +53,10 @@ export class HttpClient {
   instance: Got;
 
   constructor() {
-    this.instance = got.extend({ mutableDefaults: true });
-    process.env.NODE_TLS_REJECT_UNAUTHORIZED = '0';
+    this.instance = got.extend({
+      mutableDefaults: true,
+      rejectUnauthorized: false,
+    });
   }
 
   async request(options: Options): Promise<Response<any>> {
@@ -82,73 +84,13 @@ export class HttpClient {
       status: response.statusCode,
       statusText: response.statusMessage,
       headers: response.headers,
-      // @ts-ignore
       request: response.request.options,
       timings: response.timings.phases,
     };
   }
 
   cookie(name: string, value: string) {
-    // @ts-ignore
     this.instance.defaults.options.headers.Cookie = `${name}=${value}`;
-    // @ts-ignore
     this.instance.defaults.options.headers['User-Agent'] = 'Loadflux/Got';
   }
 }
-
-// export class HttpClient {
-//   instance: AxiosInstance;
-//
-//   constructor() {
-//     const instance = axios.create();
-//     // disable status validation by default
-//     instance.defaults.validateStatus = (status) => true;
-//     instance.defaults.withCredentials = true;
-//     // instance.defaults.timeout = 20_000;
-//     instance.defaults.maxContentLength = Infinity;
-//
-//     // addAxiosTiming(this.instance);
-//
-//     // not validate the self-signed certificate
-//     process.env.NODE_TLS_REJECT_UNAUTHORIZED = '0';
-//
-//     this.instance = instance;
-//   }
-//
-//   async request(requestConfig: AxiosRequestConfig): Promise<Response<any>> {
-//     if (requestConfig.data instanceof FormData) {
-//       const formData = requestConfig.data;
-//       requestConfig.headers = {
-//         ...requestConfig.headers,
-//         ...formData.getHeaders(),
-//       };
-//       requestConfig.data = formData.getBuffer();
-//     }
-//
-//     const response = await this.instance.request(requestConfig);
-//     // @ts-ignore
-//     response.timings = {
-//       socket: 0,
-//       lookup: 0,
-//       connect: 0,
-//       response: 0,
-//       end: 0,
-//     };
-//     // transform response
-//     return {
-//       data: response.data,
-//       status: response.status,
-//       statusText: response.statusText,
-//       headers: response.headers,
-//       request: response.config,
-//       // xhr: response.request,
-//       // @ts-ignore
-//       timings: response.timings,
-//     };
-//   }
-//
-//   cookie(name: string, value: string) {
-//     this.instance.defaults.headers.Cookie = `${name}=${value}`;
-//     this.instance.defaults.headers['User-Agent'] = 'Loadflux/Axios';
-//   }
-// }
