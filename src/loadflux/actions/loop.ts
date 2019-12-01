@@ -12,8 +12,7 @@ export function loop(spec: LoopSpec, actions: Action[]): Action {
   return {
     type: ActionType.STEP,
     title: `loop over ${spec.over}`,
-    run: async (ctx: ActionContext) => {
-      const context = ctx as ActionContext;
+    run: async (context: ActionContext) => {
       const iterable: any[] = context.vars[spec.over];
       if (!spec.parallel) {
         for (const item of iterable) {

@@ -131,11 +131,10 @@ export class Meter {
       m: response.request.method,
       u: response.request.url,
       vu,
-      // st: response.timings.socket,
-      // lt: response.timings.lookup,
-      // ct: response.timings.connect,
-      rt: response.timings.response ? response.timings.response.toFixed(0) : -1,
-      // et: response.timings.end,
+      st: response.timings.wait,
+      lt: response.timings.dns,
+      ct: response.timings.tcp,
+      rt: response.timings.total,
     } as ResponseFields);
   }
 

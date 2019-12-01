@@ -1,0 +1,89 @@
+---
+apiVersion: "apps/v1"
+kind: "Deployment"
+metadata:
+  name: "loadflux-stuff-composer"
+  namespace: "default"
+  labels:
+    app: "loadflux-stuff-composer"
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: "loadflux-stuff-composer"
+  template:
+    metadata:
+      labels:
+        app: "loadflux-stuff-composer"
+    spec:
+      containers:
+        - name: "loadflux-stuff-composer"
+          image: "chaoyangnz/loadflux-stuff-composer"
+          env:
+            - name: "LOADFLUX_BASE_URL"
+              valueFrom:
+                configMapKeyRef:
+                  key: "LOADFLUX_BASE_URL"
+                  name: "loadflux-stuff-composer-config"
+            - name: "LOADFLUX_INFLUXDB_API"
+              valueFrom:
+                configMapKeyRef:
+                  key: "LOADFLUX_INFLUXDB_API"
+                  name: "loadflux-stuff-composer-config"
+            - name: "LOADFLUX_INFLUXDB_TOKEN"
+              valueFrom:
+                configMapKeyRef:
+                  key: "LOADFLUX_INFLUXDB_TOKEN"
+                  name: "loadflux-stuff-composer-config"
+            - name: "LOADFLUX_INFLUXDB_ORG"
+              valueFrom:
+                configMapKeyRef:
+                  key: "LOADFLUX_INFLUXDB_ORG"
+                  name: "loadflux-stuff-composer-config"
+            - name: "LOADFLUX_VERBOSE_METRICS"
+              valueFrom:
+                configMapKeyRef:
+                  key: "LOADFLUX_VERBOSE_METRICS"
+                  name: "loadflux-stuff-composer-config"
+            - name: "LOADFLUX_TEST_ID"
+              valueFrom:
+                configMapKeyRef:
+                  key: "LOADFLUX_TEST_ID"
+                  name: "loadflux-stuff-composer-config"
+            - name: "COMPOSER_OAUTH_COOKIE"
+              valueFrom:
+                configMapKeyRef:
+                  key: "COMPOSER_OAUTH_COOKIE"
+                  name: "loadflux-stuff-composer-config"
+            - name: "COMPOSER_OAUTH_CLIENT_ID"
+              valueFrom:
+                configMapKeyRef:
+                  key: "COMPOSER_OAUTH_CLIENT_ID"
+                  name: "loadflux-stuff-composer-config"
+            - name: "COMPOSER_OAUTH_CLIENT_SECRET"
+              valueFrom:
+                configMapKeyRef:
+                  key: "COMPOSER_OAUTH_CLIENT_SECRET"
+                  name: "loadflux-stuff-composer-config"
+            - name: "COMPOSER_OAUTH_REFRESH_TOKEN"
+              valueFrom:
+                configMapKeyRef:
+                  key: "COMPOSER_OAUTH_REFRESH_TOKEN"
+                  name: "loadflux-stuff-composer-config"
+            - name: "COMPOSER_OAUTH_ENCRYPTION_KEY"
+              valueFrom:
+                configMapKeyRef:
+                  key: "COMPOSER_OAUTH_ENCRYPTION_KEY"
+                  name: "loadflux-stuff-composer-config"
+            - name: "COMPOSER_USERS"
+              valueFrom:
+                configMapKeyRef:
+                  key: "COMPOSER_USERS"
+                  name: "loadflux-stuff-composer-config"
+          resources:
+            requests:
+              cpu: 100m
+              memory: 200Mi
+            limits:
+              cpu: 1
+              memory: 1000Mi
