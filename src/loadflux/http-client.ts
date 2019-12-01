@@ -4,7 +4,7 @@ import { Template } from './template';
 import { Readable } from 'stream';
 import FormData = require('form-data');
 
-export interface RequestCommon {
+export interface Request {
   url: string | Template;
   method?: Method;
   prefixUrl?: string;
@@ -12,24 +12,12 @@ export interface RequestCommon {
   query?: any;
   responseType?: 'default' | 'json' | 'text';
   timeout?: number;
-}
-
-export interface BodyRequestPayload {
   body?: string | Buffer | Readable;
-}
-
-export interface JsonRequestPayload {
   json?: {
     [key: string]: any;
   };
-}
-
-export interface FormRequestPayload {
   form?: { [key: string]: any };
 }
-
-export type Request = RequestCommon &
-  (BodyRequestPayload | JsonRequestPayload | FormRequestPayload);
 
 export interface Response<T> {
   body: T;
@@ -76,11 +64,11 @@ export class HttpClient {
     });
     // transform response
     return {
-      body: options.responseType
-        ? response.body
-        : mimeExtension(response.headers['content-type'] as string) === 'json'
-        ? JSON.parse(response.body)
-        : response.body,
+      body:
+        options.responseType ||
+        mimeExtension(response.headers['content-type'] || '') !== 'json'
+          ? response.body
+          : JSON.parse(response.body),
       status: response.statusCode,
       statusText: response.statusMessage,
       headers: response.headers,

@@ -1,20 +1,12 @@
 import { cloneDeep, isFunction } from 'lodash';
 import { Action, ActionType, Callable } from '../action';
 import { ActionContext, Context } from '../context';
-import {
-  BodyRequestPayload,
-  FormRequestPayload,
-  JsonRequestPayload,
-  Request,
-  RequestCommon,
-  Response,
-} from '../http-client';
+import { Request, Response } from '../http-client';
 import { Logger } from '../log';
 import { mimeExtension } from '../mime';
 import { queryHtml, queryJson } from '../query';
 import { Template } from '../template';
 import { expectFunc, ExpectFunction } from '../expect';
-import { XOR } from '../util';
 
 interface RequestSpecOnly {
   cookie?: { [key: string]: Template };
@@ -25,9 +17,7 @@ interface RequestSpecOnly {
   afterResponse?: AfterResponseCallback;
 }
 
-export type RequestSpec = RequestSpecOnly &
-  RequestCommon &
-  XOR<XOR<BodyRequestPayload, JsonRequestPayload>, FormRequestPayload>;
+export type RequestSpec = RequestSpecOnly & Request;
 
 export interface JsonBodyCapture {
   json: string;
