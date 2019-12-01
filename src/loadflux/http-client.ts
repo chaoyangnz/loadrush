@@ -53,27 +53,25 @@ export class HttpClient {
   instance: Got;
 
   constructor() {
-    // @ts-ignore
     this.instance = got.extend({ mutableDefaults: true });
     process.env.NODE_TLS_REJECT_UNAUTHORIZED = '0';
   }
 
   async request(options: Options): Promise<Response<any>> {
-    // options.headers = options.headers || {};
-    // if (options.body instanceof FormData) {
-    //   const formData = options.body;
-    //   options.headers = {
-    //     ...options.headers,
-    //     ...formData.getHeaders(),
-    //   };
-    //   options.body = formData.getBuffer();
-    // } else if (typeof options.body === 'object') {
-    //   options.headers!['content-type'] = 'application/json';
-    //   options.body = JSON.stringify(options.body);
-    // }
+    if (options.body && options.body instanceof FormData) {
+      const formData = options.body;
+      options.headers = {
+        ...options.headers,
+        ...formData.getHeaders(),
+      };
+      options.body = formData.getBuffer();
+    }
 
     // @ts-ignore
-    const response: got.Response = await this.instance(options);
+    const response: got.Response = await this.instance({
+      ...options,
+      responseType: options.responseType || 'text',
+    });
     // transform response
     return {
       body: options.responseType
@@ -85,7 +83,7 @@ export class HttpClient {
       statusText: response.statusMessage,
       headers: response.headers,
       // @ts-ignore
-      request: response.request.gotOptions,
+      request: response.request.options,
       timings: response.timings.phases,
     };
   }
