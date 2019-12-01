@@ -3,7 +3,7 @@
 ![](https://img.shields.io/github/license/loadflux/loadflux?color=orange&style=flat-square)
 ![](https://github.com/loadflux/loadflux/workflows/build/badge.svg)
 
-# LOADFLUX
+# [LOADFLUX](https://loadflux.io)
 
 ## What is it?
 
