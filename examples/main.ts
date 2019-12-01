@@ -4,4 +4,4 @@ import './scenarios/composer-story-flow';
 import './scenarios/composer-image-flow';
 import { getEnv } from '../src/loadflux/util';
 
-runner.sustain(getEnv('COMPOSER_USERS', 100));
+runner.sustain(getEnv('COMPOSER_USERS', 1));

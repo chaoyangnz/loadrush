@@ -1,17 +1,22 @@
 import { cloneDeep, isFunction } from 'lodash';
-import FormData from 'form-data';
 import { Action, ActionType, Callable } from '../action';
 import { ActionContext, Context } from '../context';
-import { Request, Response } from '../http-client';
+import {
+  BodyRequestPayload,
+  FormRequestPayload,
+  JsonRequestPayload,
+  Request,
+  RequestCommon,
+  Response,
+} from '../http-client';
 import { Logger } from '../log';
 import { mimeExtension } from '../mime';
 import { queryHtml, queryJson } from '../query';
 import { Template } from '../template';
 import { expectFunc, ExpectFunction } from '../expect';
+import { XOR } from '../util';
 
-export interface RequestSpec extends Request {
-  url: Template;
-  data?: any | FormData | Callable<any>;
+interface RequestSpecOnly {
   cookie?: { [key: string]: Template };
   authorization?: string;
   expect?: ExpectSpec | ExpectCallable;
@@ -19,6 +24,10 @@ export interface RequestSpec extends Request {
   beforeRequest?: BeforeRequestCallback;
   afterResponse?: AfterResponseCallback;
 }
+
+export type RequestSpec = RequestSpecOnly &
+  RequestCommon &
+  XOR<XOR<BodyRequestPayload, JsonRequestPayload>, FormRequestPayload>;
 
 export interface JsonBodyCapture {
   json: string;
@@ -100,19 +109,30 @@ export function request(requestSpec: RequestSpec): Action {
       }
 
       // handle body if it is a function
-      let body = spec.data;
-      if (spec.data && isFunction(spec.data)) {
-        body = await (spec.data as Callable<any>)(context);
+      let body = spec.body;
+      if (spec.body && isFunction(spec.body)) {
+        body = await (spec.body as Callable<any>)(context);
+      }
+      let json = spec.json;
+      if (spec.json && isFunction(spec.json)) {
+        json = await (spec.json as Callable<any>)(context);
+      }
+      let form = spec.form;
+      if (spec.form && isFunction(spec.form)) {
+        form = await (spec.form as Callable<any>)(context);
       }
 
       // populate request config
       const request: Request = {
         url,
         method,
-        body,
         headers,
-        baseUrl: context.$runner.baseUrl,
+        body,
+        json,
+        form,
+        prefixUrl: context.$runner.baseUrl,
         timeout: spec.timeout,
+        responseType: spec.responseType,
       };
 
       // before sending request, publish request metric
@@ -122,10 +142,10 @@ export function request(requestSpec: RequestSpec): Action {
       let response!: Response<any>;
       try {
         logger.log(method!, url);
-        response = await context.$http.request(url, {
+        response = await context.$http.request({
           ...request,
           ...{
-            // extra config in AxiosRequestConfig
+            // extra config in Got Options
           },
         });
       } catch (e) {
@@ -170,15 +190,19 @@ export function request(requestSpec: RequestSpec): Action {
   };
 }
 
-export function get(spec: Omit<RequestSpec, 'data' | 'method'>): Action {
+export function get(
+  spec: Omit<RequestSpec, 'body' | 'json' | 'form' | 'method'>,
+): Action {
   return request({ ...spec, method: 'GET' });
 }
 
 export function post(spec: Omit<RequestSpec, 'method'>): Action {
+  // @ts-ignore
   return request({ ...spec, method: 'POST' });
 }
 
 export function put(spec: Omit<RequestSpec, 'method'>): Action {
+  // @ts-ignore
   return request({ ...spec, method: 'PUT' });
 }
 

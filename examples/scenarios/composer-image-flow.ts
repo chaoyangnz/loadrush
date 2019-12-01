@@ -45,7 +45,7 @@ scenario(
   think(2000),
   post({
     url: '/api/images',
-    data: createImagePayload(),
+    body: createImagePayload(),
     capture: [
       {
         json: '$',
@@ -57,7 +57,7 @@ scenario(
   think(1000),
   put({
     url: '/api/images/{{ image.id }}',
-    data: updateImagePayload,
+    json: updateImagePayload,
   }),
   log('Updated an image asset'),
   get({

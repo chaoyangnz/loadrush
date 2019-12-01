@@ -1,17 +1,35 @@
-import axios, { Method } from 'axios';
-import got from 'got';
+import got, { Got, Options, Method } from 'got';
 import { mimeExtension } from './mime';
+import { Template } from './template';
+import { Readable } from 'stream';
 import FormData = require('form-data');
 
-export interface Request {
-  url?: string;
+export interface RequestCommon {
+  url: string | Template;
   method?: Method;
-  baseUrl?: string;
+  prefixUrl?: string;
   headers?: any;
   query?: any;
-  body?: any;
+  responseType?: 'default' | 'json' | 'text';
   timeout?: number;
 }
+
+export interface BodyRequestPayload {
+  body?: string | Buffer | Readable;
+}
+
+export interface JsonRequestPayload {
+  json?: {
+    [key: string]: any;
+  };
+}
+
+export interface FormRequestPayload {
+  form?: { [key: string]: any };
+}
+
+export type Request = RequestCommon &
+  (BodyRequestPayload | JsonRequestPayload | FormRequestPayload);
 
 export interface Response<T> {
   body: T;
@@ -32,7 +50,7 @@ export interface Response<T> {
 }
 
 export class HttpClient {
-  instance: got.GotInstance<got.GotBodyFn<string>>;
+  instance: Got;
 
   constructor() {
     // @ts-ignore
@@ -40,30 +58,29 @@ export class HttpClient {
     process.env.NODE_TLS_REJECT_UNAUTHORIZED = '0';
   }
 
-  async request(
-    url: string,
-    options: got.GotBodyOptions<any>,
-  ): Promise<Response<any>> {
-    options.headers = options.headers || {};
-    if (options.body instanceof FormData) {
-      const formData = options.body;
-      options.headers = {
-        ...options.headers,
-        ...formData.getHeaders(),
-      };
-      options.body = formData.getBuffer();
-    } else if (typeof options.body === 'object') {
-      options.headers!['content-type'] = 'application/json';
-      options.body = JSON.stringify(options.body);
-    }
+  async request(options: Options): Promise<Response<any>> {
+    // options.headers = options.headers || {};
+    // if (options.body instanceof FormData) {
+    //   const formData = options.body;
+    //   options.headers = {
+    //     ...options.headers,
+    //     ...formData.getHeaders(),
+    //   };
+    //   options.body = formData.getBuffer();
+    // } else if (typeof options.body === 'object') {
+    //   options.headers!['content-type'] = 'application/json';
+    //   options.body = JSON.stringify(options.body);
+    // }
 
-    const response: got.Response<any> = await this.instance(url, options);
+    // @ts-ignore
+    const response: got.Response = await this.instance(options);
     // transform response
     return {
-      body:
-        mimeExtension(response.headers['content-type'] as string) === 'json'
-          ? JSON.parse(response.body)
-          : response.body,
+      body: options.responseType
+        ? response.body
+        : mimeExtension(response.headers['content-type'] as string) === 'json'
+        ? JSON.parse(response.body)
+        : response.body,
       status: response.statusCode,
       statusText: response.statusMessage,
       headers: response.headers,

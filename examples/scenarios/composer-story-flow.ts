@@ -44,7 +44,7 @@ scenario(
   think(2000),
   post({
     url: '/api/stories',
-    data: createStoryPayload(),
+    json: createStoryPayload(),
     capture: [
       {
         json: '$',
@@ -56,7 +56,7 @@ scenario(
   think(1000),
   put({
     url: '/api/stories/{{ story.id }}',
-    data: updateStoryPayload,
+    json: updateStoryPayload,
   }),
   log('Updated a story'),
   get({
