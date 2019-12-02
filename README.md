@@ -42,7 +42,7 @@ the virtual user to that scenario and run it until the scenario is completed. Yo
 
 ### Write you scenarios
 
-You can refer to the `samples` folder, there are some examples. If you read them, actually it is easy to write and you just need to take advantage of 
+You can refer to the `examples` folder, there are some examples. If you read them, actually it is easy to write and you just need to take advantage of 
 your NodeJS/Javascript knowledge.
 
 You can make use of these actions: `get`, `post`, `put`, `think`, `loop`, `parallel`, `log`.

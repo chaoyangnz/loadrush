@@ -8,7 +8,7 @@ export function parallel(actions: Action[]): Action {
     type: ActionType.STEP,
     title: 'parallel',
     run: async (context: ActionContext) => {
-      await context.$runner.parallel(actions, context);
+      await context.runner.parallel(actions, context);
     },
   };
 }

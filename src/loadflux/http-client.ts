@@ -1,6 +1,6 @@
 import got, { Got, Options, Method } from 'got';
 import { Env } from './env';
-import { mimeExtension } from './mime';
+import { mimeExtension } from './actions/http/mime';
 import { Template } from './template';
 import { Readable } from 'stream';
 import FormData from 'form-data';

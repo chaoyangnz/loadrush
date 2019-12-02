@@ -9,7 +9,6 @@ function hookStream(
   // @ts-ignore
   stream.write = ((write) => {
     return (str: any, encoding: any, fd: any) => {
-      // @ts-ignore
       // write.apply(stream, arguments); // comments this line if you don't want output in the console
       callback(str, encoding, fd);
     };

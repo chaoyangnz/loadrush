@@ -19,12 +19,12 @@ export interface Context {
 export class ActionContext implements Context {
   vars: { [key: string]: any };
   env: { [key: string]: string | number };
-  $vu: VU;
-  $scenario: Scenario;
-  $runner: DefaultRunner;
+  vu: VU;
+  scenario: Scenario;
+  runner: DefaultRunner;
 
-  $meter: Meter;
-  $http: HttpClient;
+  meter: Meter;
+  http: HttpClient;
 
   constructor(
     runner: Runner,
@@ -33,15 +33,15 @@ export class ActionContext implements Context {
     http: HttpClient = new HttpClient(),
   ) {
     // who and what
-    this.$vu = vu;
-    this.$scenario = scenario;
+    this.vu = vu;
+    this.scenario = scenario;
 
-    this.$http = http;
+    this.http = http;
 
     // populate from runner
-    this.$runner = runner as DefaultRunner;
-    this.$meter = this.$runner.meter;
-    this.env = this.$runner.env;
+    this.runner = runner as DefaultRunner;
+    this.meter = this.runner.meter;
+    this.env = this.runner.env;
 
     // action local, but could be shared to next action for non-parallel actions
     this.vars = {};
@@ -52,10 +52,10 @@ export class ActionContext implements Context {
    */
   clone() {
     const clone = new ActionContext(
-      this.$runner,
-      this.$vu,
-      this.$scenario,
-      this.$http,
+      this.runner,
+      this.vu,
+      this.scenario,
+      this.http,
     );
     clone.vars = cloneDeep(this.vars);
     return clone;
@@ -67,6 +67,6 @@ export class ActionContext implements Context {
   }
 
   cookie(name: string, value: string | Template): void {
-    this.$http.cookie(name, this.renderTemplate(value));
+    this.http.cookie(name, this.renderTemplate(value));
   }
 }

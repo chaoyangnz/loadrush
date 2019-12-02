@@ -7,7 +7,7 @@ import { Logger, Reporter } from './log';
 import { Meter } from './meter';
 import { getEnv } from './util';
 import { Volunteers } from './vu';
-import { Context, ActionContext } from './context';
+import { ActionContext } from './context';
 import { Scenario, scenarios } from './scenario';
 
 export interface Runner {

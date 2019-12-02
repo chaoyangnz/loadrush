@@ -3,10 +3,10 @@ import { Action, ActionType, Callable } from '../action';
 import { ActionContext, Context } from '../context';
 import { Request, Response } from '../http-client';
 import { Logger } from '../log';
-import { mimeExtension } from '../mime';
-import { queryHtml, queryJson } from '../query';
+import { mimeExtension } from './http/mime';
+import { queryHtml, queryJson } from './http/query';
 import { Template } from '../template';
-import { expectFunc, ExpectFunction } from '../expect';
+import { expectFunc, ExpectFunction } from './http/expect';
 
 interface RequestSpecOnly {
   cookie?: { [key: string]: Template };
@@ -78,7 +78,7 @@ export function request(requestSpec: RequestSpec): Action {
           await spec.beforeRequest(spec, context);
         } catch (e) {
           logger.log(
-            `Error occurred in beforeRequest of ${context.$scenario.name} -> ${spec.method} / ${spec.url}`,
+            `Error occurred in beforeRequest of ${context.scenario.name} -> ${spec.method} / ${spec.url}`,
             e,
           );
           throw e;
@@ -89,7 +89,7 @@ export function request(requestSpec: RequestSpec): Action {
       // handle cookie
       if (spec.cookie) {
         Object.entries(spec.cookie).forEach(([name, value]) => {
-          context.$http.cookie(name, context.renderTemplate(value));
+          context.http.cookie(name, context.renderTemplate(value));
         });
       }
 
@@ -120,19 +120,19 @@ export function request(requestSpec: RequestSpec): Action {
         body,
         json,
         form,
-        prefixUrl: context.$runner.baseUrl,
+        prefixUrl: context.runner.baseUrl,
         timeout: spec.timeout,
         responseType: spec.responseType,
       };
 
       // before sending request, publish request metric
-      context.$meter.publishHttpReq(request, context.$runner.vus.active);
+      context.meter.publishHttpReq(request, context.runner.vus.active);
 
       // start sending request
       let response!: Response<any>;
       try {
         logger.log(method!, url);
-        response = await context.$http.request({
+        response = await context.http.request({
           ...request,
           ...{
             // extra config in Got Options
@@ -142,7 +142,7 @@ export function request(requestSpec: RequestSpec): Action {
         err(e, request, context);
       }
 
-      context.$meter.publishHttpRes(response, context.$runner.vus.active);
+      context.meter.publishHttpRes(response, context.runner.vus.active);
 
       // ~~~~~~ handle expect and assertion ~~~~~~~
       await handleExpect(response, spec.expect, context);
@@ -169,7 +169,7 @@ export function request(requestSpec: RequestSpec): Action {
         } catch (e) {
           // don't send metrics
           logger.log(
-            `Error occurred in afterResponse of ${context.$scenario.name} -> ${spec.method} ${spec.url} / ${e.message}`,
+            `Error occurred in afterResponse of ${context.scenario.name} -> ${spec.method} ${spec.url} / ${e.message}`,
             e,
           );
           throw e;
@@ -187,12 +187,10 @@ export function get(
 }
 
 export function post(spec: Omit<RequestSpec, 'method'>): Action {
-  // @ts-ignore
   return request({ ...spec, method: 'POST' });
 }
 
 export function put(spec: Omit<RequestSpec, 'method'>): Action {
-  // @ts-ignore
   return request({ ...spec, method: 'PUT' });
 }
 
@@ -269,7 +267,7 @@ async function handleExpect(
         }
       }
     }
-    context.$meter.publishHttpOk(response);
+    context.meter.publishHttpOk(response);
   } else {
     // default 2xx, 3xx are regarded as success
     if (response.status < 400) {
@@ -281,7 +279,7 @@ async function handleExpect(
 }
 
 function err(e: Error, request: Request, context: ActionContext) {
-  context.$meter.publishHttpErr(request, e);
+  context.meter.publishHttpErr(request, e);
   throw e;
 }
 
@@ -291,10 +289,10 @@ function fail(
   context: ActionContext,
 ) {
   const err = e instanceof Error ? e : new Error(e);
-  context.$meter.publishHttpKo(response, err);
+  context.meter.publishHttpKo(response, err);
   throw err;
 }
 
 function succeed(response: Response<any>, context: ActionContext) {
-  context.$meter.publishHttpOk(response);
+  context.meter.publishHttpOk(response);
 }
