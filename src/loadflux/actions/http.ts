@@ -1,7 +1,7 @@
 import { cloneDeep, isFunction } from 'lodash';
 import { Action, ActionType, Callable } from '../action';
 import { ActionContext, Context } from '../context';
-import { Request, Response } from '../http-client';
+import { Request, Response } from '../http';
 import { Logger } from '../log';
 import { mimeExtension } from './http/mime';
 import { queryHtml, queryJson } from './http/query';

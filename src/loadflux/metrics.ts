@@ -9,46 +9,36 @@ export enum Metrics {
   VU = 'vu',
 }
 
-export interface RequestFields {
+interface CommonHttpFields {
   c: number;
   m: string;
   u: string;
-  vu: number;
 }
 
-export interface ResponseFields {
-  c: number;
-  m: string;
-  u: string;
-  s: number;
-  vu: number;
+interface TimingsFields {
   st: number;
   lt: number;
   ct: number;
   rt: number;
 }
 
-export interface ErrorFields {
-  c: number;
-  m: string;
-  u: string;
-  e: string;
+export interface RequestFields extends CommonHttpFields {
   vu: number;
 }
 
-export interface SuccessFields {
-  c: number;
-  r: number;
-  m: string;
-  u: string;
+export interface ResponseFields extends CommonHttpFields, TimingsFields {
   s: number;
 }
 
-export interface FailureFields {
-  c: number;
-  r: number;
-  m: string;
-  u: string;
+export interface ErrorFields extends CommonHttpFields {
+  e: string;
+}
+
+export interface SuccessFields extends CommonHttpFields {
+  s: number;
+}
+
+export interface FailureFields extends CommonHttpFields {
   s: number;
   e: string;
 }

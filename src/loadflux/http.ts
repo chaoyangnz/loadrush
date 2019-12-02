@@ -40,7 +40,12 @@ export interface Response<T> {
   };
 }
 
-export class HttpClient {
+export interface Http {
+  request(options: Options): Promise<Response<any>>;
+  cookie(name: string, value: string): void;
+}
+
+export class DefaultHttp implements Http {
   instance: Got;
 
   constructor() {

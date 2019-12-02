@@ -1,7 +1,7 @@
 import { Client } from '@influxdata/influx';
 import { BucketRetentionRules, IBucket } from '@influxdata/influx/dist';
 import { Env } from './env';
-import { Request, Response } from './http-client';
+import { Request, Response } from './http';
 import { Logger } from './log';
 import {
   ErrorFields,
@@ -130,7 +130,6 @@ export class Meter {
       c: 1,
       m: response.request.method,
       u: response.request.url,
-      vu,
       st: response.timings.wait,
       lt: response.timings.dns,
       ct: response.timings.tcp,

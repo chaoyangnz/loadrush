@@ -1,5 +1,5 @@
 import { cloneDeep } from 'lodash';
-import { HttpClient } from './http-client';
+import { DefaultHttp, Http } from './http';
 import { Meter } from './meter';
 import { Runner, DefaultRunner } from './runner';
 import { Scenario } from './scenario';
@@ -24,13 +24,13 @@ export class ActionContext implements Context {
   runner: DefaultRunner;
 
   meter: Meter;
-  http: HttpClient;
+  http: Http;
 
   constructor(
     runner: Runner,
     vu: VU,
     scenario: Scenario,
-    http: HttpClient = new HttpClient(),
+    http: Http = new DefaultHttp(),
   ) {
     // who and what
     this.vu = vu;

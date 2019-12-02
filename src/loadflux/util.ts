@@ -6,7 +6,7 @@ export function getEnv<T>(name: string, defaultValue: T): T {
   // @ts-ignore
   if (!isNaN(value)) {
     // @ts-ignore
-    return +value;
+    return Number(value);
   }
   // @ts-ignore
   return value;
