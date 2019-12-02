@@ -1,8 +1,11 @@
 import got, { Got, Options, Method } from 'got';
+import { Env } from './env';
 import { mimeExtension } from './mime';
 import { Template } from './template';
 import { Readable } from 'stream';
-import FormData = require('form-data');
+import FormData from 'form-data';
+import HttpAgent, { HttpOptions, HttpsAgent } from 'agentkeepalive';
+import { getEnv } from './util';
 
 export interface Request {
   url: string | Template;
@@ -41,9 +44,19 @@ export class HttpClient {
   instance: Got;
 
   constructor() {
+    const agentOptions: HttpOptions = {
+      keepAlive: true,
+      maxSockets: getEnv(Env.LOADFLUX_HTTP_MAX_SOCKETS, 1000_000),
+      timeout: getEnv(Env.LOADFLUX_HTTP_ACTIVE_SOCKET_TIMEOUT, 60_000),
+      freeSocketTimeout: getEnv(Env.LOADFLUX_HTTP_FREE_SOCKET_TIMEOUT, 30_000),
+    };
     this.instance = got.extend({
       mutableDefaults: true,
       rejectUnauthorized: false,
+      agent: {
+        http: new HttpAgent(agentOptions),
+        https: new HttpsAgent(agentOptions),
+      },
     });
   }
 

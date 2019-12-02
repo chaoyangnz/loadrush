@@ -33,6 +33,7 @@
   ],
   "dependencies": {
     "@influxdata/influx": "^0.5.5",
+    "agentkeepalive": "^4.1.0",
     "chalk": "^3.0.0",
     "content-type": "^1.0.4",
     "core-js": "^3.4.2",
