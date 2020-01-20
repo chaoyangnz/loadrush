@@ -13,7 +13,7 @@ export interface Request {
   prefixUrl?: string;
   headers?: any;
   query?: any;
-  responseType?: 'default' | 'json' | 'text';
+  responseType?: 'json' | 'text' | 'buffer';
   timeout?: number;
   body?: string | Buffer | Readable;
   json?: {

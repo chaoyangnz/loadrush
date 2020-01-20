@@ -34,6 +34,7 @@
   "dependencies": {
     "@influxdata/influx": "^0.5.5",
     "agentkeepalive": "^4.1.0",
+    "async": "^3.1.0",
     "chalk": "^3.0.0",
     "content-type": "^1.0.4",
     "core-js": "^3.4.2",
@@ -42,7 +43,7 @@
     "eventemitter3": "^4.0.0",
     "expect": "^24.9.0",
     "form-data": "^3.0.0",
-    "got": "^10.0.0-beta.2",
+    "got": "^10.2.2",
     "jmespath": "^0.15.0",
     "jsonpath": "^1.0.2",
     "lodash": "^4.17.15",
