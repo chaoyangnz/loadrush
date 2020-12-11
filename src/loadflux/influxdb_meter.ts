@@ -129,7 +129,12 @@ export class Meter {
       wait: response.timings.wait,
       dns: response.timings.dns,
       tcp: response.timings.tcp,
+      tls: 0,
+      request: response.timings.request,
+      firstByte: response.timings.firstByte,
+      download: response.timings.download,
       total: response.timings.total,
+      status_code: response.status,
     } as ResponseFields);
   }
 
@@ -162,7 +167,7 @@ export class Meter {
   }
 
   publishVu(vu: number) {
-    this.publish(Metrics.VU, { vu } as VUFields);
+    this.publish(Metrics.VU, { active: vu } as VUFields);
   }
 
   // <measurement>[,<tag_key>=<tag_value>[,<tag_key>=<tag_value>]] <field_key>=<field_value>[,<field_key>=<field_value>] [<timestamp>]

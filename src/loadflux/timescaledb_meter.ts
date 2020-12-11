@@ -46,9 +46,13 @@ export class Meter {
       count: 1,
       method: response.request.method,
       url: response.request.url,
-      wait: response.timings.wait,
       dns: response.timings.dns,
       tcp: response.timings.tcp,
+      tls: 0,
+      wait: response.timings.wait,
+      request: response.timings.request,
+      firstByte: response.timings.firstByte,
+      download: response.timings.download,
       total: response.timings.total,
       status_code: response.status,
     } as ResponseFields);
@@ -86,7 +90,7 @@ export class Meter {
   }
 
   publishVu(vu: number) {
-    this.publish(Metrics.VU, { vu } as VUFields);
+    this.publish(Metrics.VU, { active: vu } as VUFields);
   }
 
   private write(sql: string) {
@@ -111,7 +115,7 @@ export class Meter {
         const vuFields = fields as VUFields;
         this.write(
           `
-            INSERT into virtual_user (dataset, time, active) values ('', now(), '${vuFields.vu}')
+            INSERT into virtual_user (dataset, time, active) values ('', now(), '${vuFields.active}')
           `,
         );
         break;
@@ -128,8 +132,8 @@ export class Meter {
         const responseFields = fields as ResponseFields;
         this.write(
           `
-          INSERT into response (dataset, time, trace, method, url, timing_wait, timing_dns, timing_tcp, timing_total, status_code)
-          values ('', now(), '${responseFields.rid}', '${responseFields.method}', '${responseFields.url}', ${responseFields.wait}, ${responseFields.dns}, ${responseFields.tcp}, ${responseFields.total}, ${responseFields.status_code})
+          INSERT into response (dataset, time, trace, method, url, timing_wait, timing_dns, timing_tcp, timing_tls, timing_request, timing_first_byte, timing_download, timing_total, status_code)
+          values ('', now(), '${responseFields.rid}', '${responseFields.method}', '${responseFields.url}', ${responseFields.wait}, ${responseFields.dns}, ${responseFields.tcp}, ${responseFields.tls}, ${responseFields.request}, ${responseFields.firstByte}, ${responseFields.download}, ${responseFields.total}, ${responseFields.status_code})
         `,
         );
         break;
@@ -137,8 +141,7 @@ export class Meter {
         const successFields = fields as SuccessFields;
         this.write(
           `
-          INSERT into success (dataset, time, trace, status_code)
-          values ('', now(), '${successFields.rid}', ${successFields.status_code})
+          UPDATE response SET (success, time_success) = ('true', now()) WHERE trace = '${successFields.rid}'
         `,
         );
         break;
@@ -146,8 +149,7 @@ export class Meter {
         const failureFields = fields as SuccessFields;
         this.write(
           `
-          INSERT into failure (dataset, time, trace, status_code)
-          values ('', now(), '${failureFields.rid}', ${failureFields.status_code})
+          UPDATE response SET (failure, time_failure) = ('true', now()) WHERE trace = '${failureFields.rid}'
         `,
         );
         break;

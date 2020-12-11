@@ -20,6 +20,10 @@ interface TimingsFields {
   wait: number;
   dns: number;
   tcp: number;
+  tls: number;
+  request: number;
+  firstByte: number;
+  download: number;
   total: number;
 }
 
@@ -45,7 +49,7 @@ export interface FailureFields extends CommonHttpFields {
 }
 
 export interface VUFields {
-  vu: number;
+  active: number;
 }
 
 export type Fields =

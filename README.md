@@ -93,7 +93,7 @@ Then you should get TimescaleDB and Grafana up and running:
 
 By default, we created a Loadflux dashboard to visualise: Virtual users, HTTP throughput (RPM), success/error rate etc.
 
-![](https://i.imgur.com/h5sewgS.gif)
+![](https://i.imgur.com/AtSCG5e.gif)
 
 ### Run It
 

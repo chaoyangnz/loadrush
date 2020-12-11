@@ -269,11 +269,12 @@ async function handleExpect(
         }
       }
     }
-    context.meter.publishHttpOk(response);
+    succeed(response, context);
   } else {
     // default 2xx, 3xx are regarded as success
     if (response.status < 400) {
       succeed(response, context);
+      return true;
     } else {
       fail(`not 2xx / 3xx: ${response.status}`, response, context);
     }
