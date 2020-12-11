@@ -1,4 +1,5 @@
 import { cloneDeep, isFunction } from 'lodash';
+import { v4 as uuidv4 } from 'uuid';
 import { Action, ActionType, Callable } from '../action';
 import { ActionContext, Context } from '../context';
 import { Request, Response } from '../http';
@@ -123,6 +124,7 @@ export function request(requestSpec: RequestSpec): Action {
         prefixUrl: context.runner.baseUrl,
         timeout: spec.timeout,
         responseType: spec.responseType,
+        uuid: uuidv4(),
       };
 
       // before sending request, publish request metric
@@ -167,7 +169,7 @@ export function request(requestSpec: RequestSpec): Action {
         try {
           await spec.afterResponse(spec, response, context);
         } catch (e) {
-          // don't send metrics
+          // don't send ops
           logger.log(
             `Error occurred in afterResponse of ${context.scenario.name} -> ${spec.method} ${spec.url} / ${e.message}`,
             e,

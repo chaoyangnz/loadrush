@@ -1,4 +1,4 @@
-import { KV } from './meter';
+import { KV } from './util';
 
 export enum Metrics {
   SUCCESS = 'http_ok',
@@ -13,6 +13,7 @@ interface CommonHttpFields {
   c: number;
   m: string;
   u: string;
+  id: string;
 }
 
 interface TimingsFields {

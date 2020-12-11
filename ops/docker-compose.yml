@@ -1,0 +1,23 @@
+version: "3.9"
+services:
+  timescaledb:
+    container_name: timescaledb
+    image: timescale/pg_prometheus:latest-pg11
+    ports:
+      - "5432:5432"
+    environment:
+      POSTGRES_PASSWORD: password
+      POSTGRES_DB: loadflux
+    volumes:
+      - ./timescaledb/loadflux.sql:/docker-entrypoint-initdb.d/loadflux.sql
+  granfana:
+    container_name: granfana
+    image: grafana/grafana:latest
+    ports:
+      - "3000:3000"
+    volumes:
+      - ./grafana/provisioning:/etc/grafana/provisioning
+    links:
+      - timescaledb
+volumes:
+  logvolume01: {}

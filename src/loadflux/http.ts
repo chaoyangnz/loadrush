@@ -20,6 +20,7 @@ export interface Request {
     [key: string]: any;
   };
   form?: { [key: string]: any };
+  uuid?: string;
 }
 
 export interface Response<T> {
@@ -90,7 +91,8 @@ export class DefaultHttp implements Http {
       status: response.statusCode,
       statusText: response.statusMessage,
       headers: response.headers,
-      request: response.request.options,
+      // @ts-ignore
+      request: { ...response.request.options, uuid: options.uuid },
       timings: response.timings.phases,
     };
   }
