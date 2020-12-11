@@ -23,11 +23,8 @@ you can ramp up 50 new users per second, then sometime your application will cra
 
 ### Metrics
 
-We integrate [InfluxDB](https://www.influxdata.com/) and send real-time measurements to the cloud, so we can do analytics later.
-Some basic metrics like requests/success/failure count, mean response time, RPS, active virtual users etc can be monitored in its platform.
-We choose InfluxDB as it has an intuitive UI and easy to integrate. But we will add more integrations to other monitoring platforms in the future.
-
-![](https://i.imgur.com/gqWg5Xz.gif)
+Metrics are important for observability and help you analyse the performance afterwards.
+We support TimescaleDB + Grafana at the first place, at the same time, we also integrate wtih InfluxDB.
 
 ## Concepts
 
@@ -130,6 +127,9 @@ Then you should get TimescaleDB and Grafana up and running:
 
 By default, we created a Loadflux dashboard to visualise: Virtual users, HTTP throughput (RPM), success/error rate etc.
 
+![](https://i.imgur.com/h5sewgS.gif)
+
+
 #### InfluxDB
 
 If you'd like to use InfluxDB as a metric storage, we still support it.
@@ -139,6 +139,12 @@ If you like, build a dashboard and keep monitoring. All these things are dependi
 
 You can easily set up a InfluxDB in your cluster. Please check `influxdb` folder where there are some kubernetes resource to help you deploy an influxDB in your kubernetes cluster.
 We set up a public one: https://data.loadflux.io
+
+We integrate [InfluxDB](https://www.influxdata.com/) and send real-time metrics to the cloud, so we can do analytics later.
+Some basic metrics like requests/success/failure count, mean response time, RPS, active virtual users etc can be monitored in its platform.
+We choose InfluxDB as it has an intuitive UI and easy to integrate. But we will add more integrations to other monitoring platforms in the future.
+
+![](https://i.imgur.com/gqWg5Xz.gif)
 
 ## Roadmap
 

@@ -114,50 +114,50 @@ export class Meter {
 
   publishHttpReq(request: Request, vu: number) {
     this.publish(Metrics.REQUEST, {
-      c: 1,
-      m: request.method,
-      u: request.url,
+      count: 1,
+      method: request.method,
+      url: request.url,
       vu,
     } as RequestFields);
   }
 
   publishHttpRes(response: Response<any>, vu: number) {
     this.publish(Metrics.RESPONSE, {
-      c: 1,
-      m: response.request.method,
-      u: response.request.url,
-      st: response.timings.wait,
-      lt: response.timings.dns,
-      ct: response.timings.tcp,
-      rt: response.timings.total,
+      count: 1,
+      method: response.request.method,
+      url: response.request.url,
+      wait: response.timings.wait,
+      dns: response.timings.dns,
+      tcp: response.timings.tcp,
+      total: response.timings.total,
     } as ResponseFields);
   }
 
   publishHttpOk(response: Response<any>) {
     this.publish(Metrics.SUCCESS, {
-      c: 1,
-      m: response.request.method,
-      u: response.request.url,
-      s: response.status,
+      count: 1,
+      method: response.request.method,
+      url: response.request.url,
+      status_code: response.status,
     } as SuccessFields);
   }
 
   publishHttpKo(response: Response<any>, e: Error) {
     this.publish(Metrics.FAILURE, {
-      c: 1,
-      m: response.request.method,
-      u: response.request.url,
-      s: response.status,
-      e: e.message,
+      count: 1,
+      method: response.request.method,
+      url: response.request.url,
+      status_code: response.status,
+      error: e.message,
     } as FailureFields);
   }
 
   publishHttpErr(request: Request, e: Error) {
     this.publish(Metrics.ERROR, {
-      c: 1,
-      m: request.method,
-      u: request.url,
-      e: e.message,
+      count: 1,
+      method: request.method,
+      url: request.url,
+      error: e.message,
     } as ErrorFields);
   }
 

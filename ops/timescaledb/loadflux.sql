@@ -1,7 +1,7 @@
 CREATE TABLE virtual_user (
   dataset       VARCHAR         NOT NULL,
   time          TIMESTAMPTZ     NOT NULL,
-  virtual_user  INTEGER         NOT NULL
+  active        INTEGER         NOT NULL
 );
 
 CREATE TABLE request (

@@ -32,56 +32,56 @@ export class Meter {
 
   publishHttpReq(request: Request, vu: number) {
     this.publish(Metrics.REQUEST, {
-      id: request.uuid,
-      c: 1,
-      m: request.method,
-      u: request.url,
+      rid: request.uuid,
+      count: 1,
+      method: request.method,
+      url: request.url,
       vu,
     } as RequestFields);
   }
 
   publishHttpRes(response: Response<any>, vu: number) {
     this.publish(Metrics.RESPONSE, {
-      id: response.request.uuid,
-      c: 1,
-      m: response.request.method,
-      u: response.request.url,
-      st: response.timings.wait,
-      lt: response.timings.dns,
-      ct: response.timings.tcp,
-      rt: response.timings.total,
-      s: response.status,
+      rid: response.request.uuid,
+      count: 1,
+      method: response.request.method,
+      url: response.request.url,
+      wait: response.timings.wait,
+      dns: response.timings.dns,
+      tcp: response.timings.tcp,
+      total: response.timings.total,
+      status_code: response.status,
     } as ResponseFields);
   }
 
   publishHttpOk(response: Response<any>) {
     this.publish(Metrics.SUCCESS, {
-      id: response.request.uuid,
-      c: 1,
-      m: response.request.method,
-      u: response.request.url,
-      s: response.status,
+      rid: response.request.uuid,
+      count: 1,
+      method: response.request.method,
+      url: response.request.url,
+      status_code: response.status,
     } as SuccessFields);
   }
 
   publishHttpKo(response: Response<any>, e: Error) {
     this.publish(Metrics.FAILURE, {
-      id: response.request.uuid,
-      c: 1,
-      m: response.request.method,
-      u: response.request.url,
-      s: response.status,
-      e: e.message,
+      rid: response.request.uuid,
+      count: 1,
+      method: response.request.method,
+      url: response.request.url,
+      status_code: response.status,
+      error: e.message,
     } as FailureFields);
   }
 
   publishHttpErr(request: Request, e: Error) {
     this.publish(Metrics.ERROR, {
-      id: request.uuid,
-      c: 1,
-      m: request.method,
-      u: request.url,
-      e: e.message,
+      rid: request.uuid,
+      count: 1,
+      method: request.method,
+      url: request.url,
+      error: e.message,
     } as ErrorFields);
   }
 
@@ -111,9 +111,7 @@ export class Meter {
         const vuFields = fields as VUFields;
         this.write(
           `
-            INSERT into virtual_user (dataset, time, virtual_user) values ('', to_timestamp(${Date.now()} / 1000.0), '${
-            vuFields.vu
-          }')
+            INSERT into virtual_user (dataset, time, active) values ('', now(), '${vuFields.vu}')
           `,
         );
         break;
@@ -122,11 +120,7 @@ export class Meter {
         this.write(
           `
           INSERT into request (dataset, time, trace, scenario, action, virtual_user, method, url)
-          values ('', to_timestamp(${Date.now()} / 1000.0), '${
-            requestFields.id
-          }', '', '', ${requestFields.vu}, '${requestFields.m}', '${
-            requestFields.u
-          }')
+          values ('', now(), '${requestFields.rid}', '', '', ${requestFields.vu}, '${requestFields.method}', '${requestFields.url}')
         `,
         );
         break;
@@ -135,13 +129,7 @@ export class Meter {
         this.write(
           `
           INSERT into response (dataset, time, trace, method, url, timing_wait, timing_dns, timing_tcp, timing_total, status_code)
-          values ('', to_timestamp(${Date.now()} / 1000.0), '${
-            responseFields.id
-          }', '${responseFields.m}', '${responseFields.u}', ${
-            responseFields.st
-          }, ${responseFields.lt}, ${responseFields.ct}, ${
-            responseFields.st
-          }, ${responseFields.s})
+          values ('', now(), '${responseFields.rid}', '${responseFields.method}', '${responseFields.url}', ${responseFields.wait}, ${responseFields.dns}, ${responseFields.tcp}, ${responseFields.total}, ${responseFields.status_code})
         `,
         );
         break;
@@ -150,9 +138,7 @@ export class Meter {
         this.write(
           `
           INSERT into success (dataset, time, trace, status_code)
-          values ('', to_timestamp(${Date.now()} / 1000.0), '${
-            successFields.id
-          }', ${successFields.s})
+          values ('', now(), '${successFields.rid}', ${successFields.status_code})
         `,
         );
         break;
@@ -161,9 +147,7 @@ export class Meter {
         this.write(
           `
           INSERT into failure (dataset, time, trace, status_code)
-          values ('', to_timestamp(${Date.now()} / 1000.0), '${
-            failureFields.id
-          }', ${failureFields.s})
+          values ('', now(), '${failureFields.rid}', ${failureFields.status_code})
         `,
         );
         break;
@@ -172,9 +156,7 @@ export class Meter {
         this.write(
           `
           INSERT into error (dataset, time, trace, method, url, error)
-          values ('', to_timestamp(${Date.now()} / 1000.0), '', '${
-            errorFields.m
-          }', '${errorFields.u}', '${errorFields.e}')
+          values ('', now(), '', '${errorFields.method}', '${errorFields.url}', '${errorFields.error}')
         `,
         );
         break;

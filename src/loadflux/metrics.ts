@@ -10,17 +10,17 @@ export enum Metrics {
 }
 
 interface CommonHttpFields {
-  c: number;
-  m: string;
-  u: string;
-  id: string;
+  count: number;
+  method: string;
+  url: string;
+  rid: string;
 }
 
 interface TimingsFields {
-  st: number;
-  lt: number;
-  ct: number;
-  rt: number;
+  wait: number;
+  dns: number;
+  tcp: number;
+  total: number;
 }
 
 export interface RequestFields extends CommonHttpFields {
@@ -28,20 +28,20 @@ export interface RequestFields extends CommonHttpFields {
 }
 
 export interface ResponseFields extends CommonHttpFields, TimingsFields {
-  s: number;
+  status_code: number;
 }
 
 export interface ErrorFields extends CommonHttpFields {
-  e: string;
+  error: string;
 }
 
 export interface SuccessFields extends CommonHttpFields {
-  s: number;
+  status_code: number;
 }
 
 export interface FailureFields extends CommonHttpFields {
-  s: number;
-  e: string;
+  status_code: number;
+  error: string;
 }
 
 export interface VUFields {

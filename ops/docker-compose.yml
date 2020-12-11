@@ -10,8 +10,9 @@ services:
       POSTGRES_DB: loadflux
     volumes:
       - ./timescaledb/loadflux.sql:/docker-entrypoint-initdb.d/loadflux.sql
-  granfana:
-    container_name: granfana
+      - ./timescaledb/data:/var/lib/postgresql/data
+  grafana:
+    container_name: grafana
     image: grafana/grafana:latest
     ports:
       - "3000:3000"
