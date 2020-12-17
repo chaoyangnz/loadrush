@@ -7,7 +7,7 @@
 
 <img src="img/feature_developer_experience.svg" style="width: 120px"/>
 
-Built in <code>Typescript</code> & <code>Nodejs</code>,take advantage of the modern developer workflow and familiar techniques, scenario definitions with readable and intuitive Javascript DSL.
+Built in <code>Typescript</code> & <code>Nodejs</code>,take advantage of modern developer workflows and familiar techniques, scenario definitions with readable and intuitive Javascript DSL.
 
 
 ## Flexible & powerful without pains
