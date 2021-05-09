@@ -64,7 +64,7 @@ export function request(requestSpec: RequestSpec): Action {
     type: ActionType.STEP,
     title: `${requestSpec.method} ${requestSpec.url}`,
     run: async (context: ActionContext) => {
-      const logger = new Logger('loadflux:action:http');
+      const logger = new Logger('loadrush:action:http');
       const spec = cloneDeep(requestSpec);
 
       const method = spec.method;

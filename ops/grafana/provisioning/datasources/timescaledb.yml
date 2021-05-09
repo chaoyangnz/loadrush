@@ -4,7 +4,7 @@ datasources:
 - name: timescaledb
   type: postgres
   url: timescaledb:5432
-  database: loadflux
+  database: loadrush
   user: postgres
   secureJsonData:
     password: password

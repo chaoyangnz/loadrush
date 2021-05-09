@@ -52,9 +52,9 @@ export class DefaultHttp implements Http {
   constructor() {
     const agentOptions: HttpOptions = {
       keepAlive: true,
-      maxSockets: getEnv(Env.LOADFLUX_HTTP_MAX_SOCKETS, 1000_000),
-      timeout: getEnv(Env.LOADFLUX_HTTP_ACTIVE_SOCKET_TIMEOUT, 60_000),
-      freeSocketTimeout: getEnv(Env.LOADFLUX_HTTP_FREE_SOCKET_TIMEOUT, 30_000),
+      maxSockets: getEnv(Env.LOADRUSH_HTTP_MAX_SOCKETS, 1000_000),
+      timeout: getEnv(Env.LOADRUSH_HTTP_ACTIVE_SOCKET_TIMEOUT, 60_000),
+      freeSocketTimeout: getEnv(Env.LOADRUSH_HTTP_FREE_SOCKET_TIMEOUT, 30_000),
     };
     this.instance = got.extend({
       mutableDefaults: true,
@@ -99,6 +99,6 @@ export class DefaultHttp implements Http {
 
   cookie(name: string, value: string) {
     this.instance.defaults.options.headers.Cookie = `${name}=${value}`;
-    this.instance.defaults.options.headers['User-Agent'] = 'Loadflux/Got';
+    this.instance.defaults.options.headers['User-Agent'] = 'LOADRUSH/Got';
   }
 }

@@ -27,26 +27,26 @@ export class Meter {
   org: string;
   bucket: string;
   api: string;
-  logger = new Logger('loadflux:meter');
+  logger = new Logger('loadrush:meter');
 
   bucketExisted!: Promise<IBucket>;
   verboseMetrics = false;
 
   constructor() {
-    this.org = getEnv(Env.LOADFLUX_INFLUXDB_ORG, '');
-    this.bucket = getEnv(Env.LOADFLUX_TEST_ID, String(Date.now()));
-    this.api = getEnv(Env.LOADFLUX_INFLUXDB_API, '');
+    this.org = getEnv(Env.LOADRUSH_INFLUXDB_ORG, '');
+    this.bucket = getEnv(Env.LOADRUSH_TEST_ID, String(Date.now()));
+    this.api = getEnv(Env.LOADRUSH_INFLUXDB_API, '');
 
     if (!this.org || !this.bucket || !this.api) {
       console.warn(
-        'LOADFLUX_INFLUXDB_ORG or LOADFLUX_INFLUXDB_API or LOADFLUX_TEST_ID is not set',
+        'LOADRUSH_INFLUXDB_ORG or LOADRUSH_INFLUXDB_API or LOADRUSH_TEST_ID is not set',
       );
       process.exit(-1);
     }
-    this.client = new Client(this.api, getEnv(Env.LOADFLUX_INFLUXDB_TOKEN, ''));
+    this.client = new Client(this.api, getEnv(Env.LOADRUSH_INFLUXDB_TOKEN, ''));
     this.createBucketIfNotExist();
     this.verboseMetrics =
-      getEnv<string>(Env.LOADFLUX_VERBOSE_METRICS, 'false') === 'true';
+      getEnv<string>(Env.LOADRUSH_VERBOSE_METRICS, 'false') === 'true';
   }
 
   private createBucketIfNotExist() {
@@ -183,7 +183,7 @@ export class Meter {
         .map(([key, value]) => `${key}=${this.quoteIfNeed(value)}`)
         .join(',');
     }
-    const extraTags = getEnv(Env.LOADFLUX_INFLUXDB_TAGS, '');
+    const extraTags = getEnv(Env.LOADRUSH_INFLUXDB_TAGS, '');
     if (extraTags) {
       joinedTags += `,${extraTags}`;
     }

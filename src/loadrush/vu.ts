@@ -21,7 +21,7 @@ export class Volunteers {
       if (!this.bitset.has(vu)) {
         break;
       }
-      if (vu === getEnv(Env.LOADFLUX_VU_POOL_SIZE, 10_000)) {
+      if (vu === getEnv(Env.LOADRUSH_VU_POOL_SIZE, 10_000)) {
         console.warn('You set too high work load and no user can be available');
         process.exit(-1);
       }

@@ -20,7 +20,7 @@ function hookStream(
 }
 
 export function redirectStdout() {
-  const logFile = fs.createWriteStream('loadflux.log', {
+  const logFile = fs.createWriteStream('loadrush.log', {
     flags: 'w',
   });
   hookStream(process.stdout, (str: any, encoding: any, fd: any) => {

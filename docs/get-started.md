@@ -8,17 +8,17 @@ sidebar_label: Get Started
 
 Like any NodeJS package, you can run:
 
-`npm install loadflux`
+`npm install loadrush`
 
 or
 
-`yarn install loadflux`
+`yarn install loadrush`
 # Write your scenario
 A simple Javascript file to define your scenario.
 
 ```javascript
 // scenario.js
-import { runner, scenario, get, post, put,log, think, loop, parallel } from 'loadflux';
+import { runner, scenario, get, post, put,log, think, loop, parallel } from 'loadrush';
 
 scenario({
     name: 'an example flow',
@@ -39,4 +39,4 @@ runner.sustain(5); // keep 5 users busy to run a scenario
 
 # Metrics visualisation
 
-Go to https://data.loadflux.io
+Go to https://data.loadrush.io

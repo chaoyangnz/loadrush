@@ -1,9 +1,9 @@
-export { scenario } from './loadflux/scenario';
-export { request, get, post, put } from './loadflux/actions/http';
-export { before, after } from './loadflux/actions/hook';
-export { think } from './loadflux/actions/think';
-export { log } from './loadflux/actions/log';
-export { loop } from './loadflux/actions/loop';
-export { parallel } from './loadflux/actions/parallel';
-export { Context } from './loadflux/context';
-export { runner, Runner } from './loadflux/runner';
+export { scenario } from './loadrush/scenario';
+export { request, get, post, put } from './loadrush/actions/http';
+export { before, after } from './loadrush/actions/hook';
+export { think } from './loadrush/actions/think';
+export { log } from './loadrush/actions/log';
+export { loop } from './loadrush/actions/loop';
+export { parallel } from './loadrush/actions/parallel';
+export { Context } from './loadrush/context';
+export { runner, Runner } from './loadrush/runner';

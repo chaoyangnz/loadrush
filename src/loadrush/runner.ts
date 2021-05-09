@@ -30,8 +30,8 @@ export class DefaultRunner implements Runner {
     // load .env env vars
     dotenv.config();
 
-    this.baseUrl = getEnv(Env.LOADFLUX_BASE_URL, '');
-    this.duration = getEnv<number>(Env.LOADFLUX_DURATION, 600);
+    this.baseUrl = getEnv(Env.LOADRUSH_BASE_URL, '');
+    this.duration = getEnv<number>(Env.LOADRUSH_DURATION, 600);
     this.vus = new Volunteers();
     this.meter = new Meter();
     for (const [key, value] of Object.entries(process.env)) {
@@ -103,7 +103,7 @@ export class DefaultRunner implements Runner {
         reporter.succeed();
       } catch (e) {
         reporter.fail();
-        new Logger('loadflux:action').log(e);
+        new Logger('loadrush:action').log(e);
         throw e;
       }
     }
@@ -124,7 +124,7 @@ export class DefaultRunner implements Runner {
           })
           .catch((e) => {
             reporter.fail();
-            new Logger('loadflux:action').log(e);
+            new Logger('loadrush:action').log(e);
             throw e;
           });
       }),
