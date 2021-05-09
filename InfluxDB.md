@@ -2,10 +2,10 @@
 
 ## Environment variables
 - Metrics (InfluxDB)
-    - `LOADFLUX_INFLUXDB_API`: `InfluxDB` v2 API endpoint, typically like `https://us-west-2-1.aws.cloud2.influxdata.com/api/v2`. Refer to `InfluxDB` documentation.
-    - `LOADFLUX_INFLUXDB_TOKEN`: `InfluxDB` token, which can be found in InfluxDB cloud admin console.
-    - `LOADFLUX_INFLUXDB_ORG`: `InfluxDB` organization, which be can be found in the URL of InfluxDB cloud admin console. e.g. `https://us-west-2-1.aws.cloud2.influxdata.com/orgs/<orgID>`.
-    - `LOADFLUX_VERBOSE_METRICS`: in terms of InfluxDB cost, text fields will be sent when it is set as `true`, otherwise only numeric fields are sent. Default: `false`.
+    - `LOADRUSH_INFLUXDB_API`: `InfluxDB` v2 API endpoint, typically like `https://us-west-2-1.aws.cloud2.influxdata.com/api/v2`. Refer to `InfluxDB` documentation.
+    - `LOADRUSH_INFLUXDB_TOKEN`: `InfluxDB` token, which can be found in InfluxDB cloud admin console.
+    - `LOADRUSH_INFLUXDB_ORG`: `InfluxDB` organization, which be can be found in the URL of InfluxDB cloud admin console. e.g. `https://us-west-2-1.aws.cloud2.influxdata.com/orgs/<orgID>`.
+    - `LOADRUSH_VERBOSE_METRICS`: in terms of InfluxDB cost, text fields will be sent when it is set as `true`, otherwise only numeric fields are sent. Default: `false`.
     As we know, InfluxDB Cloud free plan has a rate limit of 10kb/s write.
 
 ## InfluxDB
@@ -16,7 +16,7 @@ All the data is collected in `InfluxDB` if you set up the account beforehand. Th
 If you like, build a dashboard and keep monitoring. All these things are depending on your Data processing skills.
 
 You can easily set up a InfluxDB in your cluster. Please check `influxdb` folder where there are some kubernetes resource to help you deploy an influxDB in your kubernetes cluster.
-We set up a public one: https://data.loadflux.io
+We set up a public one: https://data.LOADRUSH.io
 
 We integrate [InfluxDB](https://www.influxdata.com/) and send real-time metrics to the cloud, so we can do analytics later.
 Some basic metrics like requests/success/failure count, mean response time, RPS, active virtual users etc can be monitored in its platform.

@@ -5,7 +5,7 @@ import { Context } from '../../../src';
 export function createStoryPayload() {
   return {
     assetSubType: 'generic',
-    headline: `Loadflux: ${faker.lorem.sentence(
+    headline: `LOADRUSH: ${faker.lorem.sentence(
       4,
     )} @ ${new Date().toLocaleString()}`,
     body: [
@@ -46,7 +46,7 @@ export function updateStoryPayload(context: Context) {
   const story = context.vars.story;
   const storyUpdated = cloneDeep(story);
   storyUpdated.assetSubType = 'opinion';
-  storyUpdated.headline = `Loadflux: ${faker.lorem.sentence(
+  storyUpdated.headline = `LOADRUSH: ${faker.lorem.sentence(
     5,
   )} @ ${new Date().toLocaleString()} - updated`;
   return storyUpdated;

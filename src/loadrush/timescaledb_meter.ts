@@ -15,16 +15,16 @@ import { getEnv, KV } from './util';
 import { Env } from './env';
 
 export class Meter {
-  logger = new Logger('loadflux:meter');
+  logger = new Logger('loadrush:meter');
   pool: Pool;
 
   verboseMetrics = false;
 
   constructor() {
     this.pool = new Pool({
-      host: getEnv(Env.LOADFLUX_TIMESCALEDB_HOST, 'localhost'),
-      port: getEnv(Env.LOADFLUX_TIMESCALEDB_PORT, 5432),
-      database: 'loadflux',
+      host: getEnv(Env.LOADRUSH_TIMESCALEDB_HOST, 'localhost'),
+      port: getEnv(Env.LOADRUSH_TIMESCALEDB_PORT, 5432),
+      database: 'loadrush',
       user: 'postgres',
       password: 'password',
     });

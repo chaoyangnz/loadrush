@@ -7,9 +7,9 @@ services:
       - "5432:5432"
     environment:
       POSTGRES_PASSWORD: password
-      POSTGRES_DB: loadflux
+      POSTGRES_DB: loadrush
     volumes:
-      - ./timescaledb/loadflux.sql:/docker-entrypoint-initdb.d/loadflux.sql
+      - ./timescaledb/loadrush.sql:/docker-entrypoint-initdb.d/loadrush.sql
       - ./timescaledb/data:/var/lib/postgresql/data
   grafana:
     container_name: grafana

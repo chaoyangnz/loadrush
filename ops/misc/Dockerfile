@@ -8,6 +8,6 @@ COPY tsconfig.json ./
 
 RUN npm i
 
-ENV DEBUG=loadflux:*
+ENV DEBUG=loadrush:*
 
 CMD ["node_modules/.bin/ts-node", "examples/main.ts"]

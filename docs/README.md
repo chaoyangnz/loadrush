@@ -1,13 +1,15 @@
-![](https://img.shields.io/npm/v/loadflux?color=green&style=flat-square)
-![](https://img.shields.io/github/package-json/v/loadflux/loadflux?color=blue&style=flat-square)
-![](https://img.shields.io/github/license/loadflux/loadflux?color=orange&style=flat-square)
-![](https://github.com/loadflux/loadflux/workflows/build/badge.svg)
+![](https://img.shields.io/npm/v/loadrush?color=green&style=flat-square)
+![](https://img.shields.io/github/package-json/v/loadflux/loadrush?color=blue&style=flat-square)
+![](https://img.shields.io/github/license/loadflux/loadrush?color=orange&style=flat-square)
+![](https://github.com/loadflux/loadrush/workflows/build/badge.svg)
 
-# LOADFLUX
+# LOADRUSH
+
+Previously named `loadflux`, but now `loadflux` is supposed to be rebranded to an observability platform.
 
 ## What is it?
 
-`Loadflux` is a simplistic tool for load testing.
+`LOADRUSH` is a simplistic tool for load testing.
 You just need to focus more on how to design your scenario, and the scripting is just taking several minutes.
 The infrastructure requirement is pretty low, you can simulate hundreds of virtual users to send requests to your application in your local machine.
 It supports different strategies to ramp the load, by default in this library, we provide:
@@ -21,7 +23,7 @@ you can ramp up 50 new users per second, then sometime your application will cra
 
 ```
 cd ops && docker-compose up
-cd - && DEBUG=loadflux:* ts-node examples/main.ts
+cd - && DEBUG=loadrush:* ts-node examples/main.ts
 ```
 
 ## Concepts
@@ -45,7 +47,7 @@ your NodeJS/Javascript knowledge.
 You can make use of these actions: `get`, `post`, `put`, `think`, `loop`, `parallel`, `log`.
 
 ```js
-import { runner, scenario, get, post, put,log, think, loop, parallel } from 'loadflux';
+import { runner, scenario, get, post, put,log, think, loop, parallel } from 'loadrush';
 
 scenario({
     name: 'an example flow',
@@ -91,27 +93,27 @@ Then you should get TimescaleDB and Grafana up and running:
 - TimescaleDB: listening on `5432`
 - Grafana: http://localhost:3000
 
-By default, we created a Loadflux dashboard to visualise: Virtual users, HTTP throughput (RPM), success/error rate etc.
+By default, we created a LOADRUSH dashboard to visualise: Virtual users, HTTP throughput (RPM), success/error rate etc.
 
 ![](https://i.imgur.com/AtSCG5e.gif)
 
 ### Run It
 
-Just like any other NodeJS application, run it using `node` command line. `Loadflux` is just a _library_, **NOT** a framework or CLI.
+Just like any other NodeJS application, run it using `node` command line. `LOADRUSH` is just a _library_, **NOT** a framework or CLI.
 
-Normally, you don't need to set any environment variables to keep it up and running with default values. But `Loadflux` does have some environment variables worth noticing. Either create a `.env` file or specify them when you run your application
+Normally, you don't need to set any environment variables to keep it up and running with default values. But `LOADRUSH` does have some environment variables worth noticing. Either create a `.env` file or specify them when you run your application
 (e.g. in Dockerfile, docker-composer file, k8s deployment.yaml, CloudFormation, etc).
 
 Environment Variables:
 - General
-    - `LOADFLUX_DURATION`: how long you plan to run your load testing.
-    - `LOADFLUX_BASE_URL`: the base url of your application. If you don't set, you have to use absolute URL in your http action.
-    - `LOADFLUX_TEST_ID`: the test id (16 chars at most) used for different iteration of your testing. Default: current timestamp since unix epoch.
+    - `LOADRUSH_DURATION`: how long you plan to run your load testing.
+    - `LOADRUSH_BASE_URL`: the base url of your application. If you don't set, you have to use absolute URL in your http action.
+    - `LOADRUSH_TEST_ID`: the test id (16 chars at most) used for different iteration of your testing. Default: current timestamp since unix epoch.
 - TimescaleDB
-    - `LOADFLUX_TIMESCALEDB_HOST`: TimescaleDB host. Default `localhost`.
-    - `LOADFLUX_TIMESCALEDB_PORT`: TimescaleDB port, Default `5432`.
+    - `LOADRUSH_TIMESCALEDB_HOST`: TimescaleDB host. Default `localhost`.
+    - `LOADRUSH_TIMESCALEDB_PORT`: TimescaleDB port, Default `5432`.
 - Logging
-    - `DEBUG`: we are use `debug` as our underlying logger, so you can enable a namespace. e.g. `DEBUG=loadflux:*`
+    - `DEBUG`: we are use `debug` as our underlying logger, so you can enable a namespace. e.g. `DEBUG=loadrush:*`
 
 ### Report and logs
 
@@ -120,8 +122,8 @@ So if you are running in a container environment or cloud platform (e.g. GCP), n
 
 ![](https://i.imgur.com/RLcFPJh.gif)
 
-Other than the report logs, all rest logs are going to `stdout`, further redirected to a log file in current directory: `loadflux.log`.
-You can run the command line: `tail -f loadflux.log` to keep the file open to display updated changes to console.
+Other than the report logs, all rest logs are going to `stdout`, further redirected to a log file in current directory: `loadrush.log`.
+You can run the command line: `tail -f loadrush.log` to keep the file open to display updated changes to console.
 
 ## Story behind it
 
@@ -138,6 +140,6 @@ testing tools:
 - [x] TimescaleDB and Grafana integration
 - [ ] complex load phases: multiple phases for different load strategy and duration
 - [ ] distributed load testing
-- [ ] [`loadflux recorder`](https://github.com/loadflux/loadflux-recorder) Chrome extension to record the scenario and generate scenario file automatically
-- [ ] [`loadflux webbench`](https://github.com/loadflux/loadflux-webbench) Browser-side performance/load testing tool which simulates the web browser users
+- [ ] [`loadrush recorder`](https://github.com/loadflux/loadrush-recorder) Chrome extension to record the scenario and generate scenario file automatically
+- [ ] [`loadrush webbench`](https://github.com/loadflux/loadrush-webbench) Browser-side performance/load testing tool which simulates the web browser users
 and drives browsers to test the comprehensive performance of your application.

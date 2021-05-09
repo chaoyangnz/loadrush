@@ -1,35 +1,38 @@
 {
-  "name": "loadflux",
-  "version": "0.1.0",
+  "name": "loadrush",
+  "version": "0.2.0",
   "description": "Simple and flexible load testing tool by developers and for developers",
   "author": "Chao Yang <chaoyang.nz@gmail.com>",
   "license": "MIT",
-  "repository": "git+https://github.com/loadflux/loadflux",
-  "main": "dist/index.js",
-  "types": "dist/index.d.ts",
-  "scripts": {
-    "build": "tsc --outDir dist --module commonjs",
-    "clean": "rimraf dist coverage",
-    "typecheck": "tsc --noEmit",
-    "lint": "tslint --project tsconfig.json --format stylish",
-    "format": "prettier '**/*.{md,js,jsx,json,ts,tsx}' --write",
-    "test": "jest --env=node --coverage",
-    "test:watch": "jest --env=node --watch --updateSnapshot",
-    "prepublish": "npm run build",
-    "prebuild": "npm run clean",
-    "postbuild": "mv dist/src/* dist/ && rimraf dist/{src,examples} dist/**/__tests__ dist/**/*.{spec,test,dist}.{js,d.ts,js.map}",
-    "posttest": "npm run typecheck && npm run lint",
-    "preversion": "npm test",
-    "postversion": "git push && git push --tags"
-  },
+  "repository": "git+https://github.com/loadflux/loadrush",
   "keywords": [
     "typescript",
     "nodejs",
     "load-testing",
     "stress-testing"
   ],
+  "main": "lib/index.js",
+  "types": "lib/index.d.ts",
+  "scripts": {
+    "start": "node lib/index.js",
+    "clean": "rimraf coverage build lib tmp",
+    "prebuild": "npm run clean",
+    "build": "tsc -p tsconfig.release.json",
+    "build:watch": "tsc -w -p tsconfig.release.json",
+    "lint": "eslint . --ext .ts,.tsx",
+    "test": "jest --coverage",
+    "test:watch": "jest --watch",
+    "prerelease": "npm run build",
+    "release": "npm login && bump --tag && npm publish",
+    "postrelease": "git push && git push --tags",
+    "typecheck": "tsc --noEmit",
+    "format": "prettier '**/*.{md,js,jsx,json,ts,tsx}' --write"
+  },
+  "publishConfig": {
+    "access": "public"
+  },
   "files": [
-    "dist"
+    "lib/**/*"
   ],
   "dependencies": {
     "@influxdata/influx": "^0.5.5",
@@ -50,7 +53,6 @@
     "mime-types": "^2.1.25",
     "mustache": "^3.1.0",
     "ora": "^4.0.3",
-    "pg": "^8.5.1",
     "tslib": "^1.9.3",
     "uuid": "^8.3.2",
     "xmlhttprequest": "^1.8.0",
@@ -73,7 +75,9 @@
     "docsify-cli": "^4.4.2",
     "jest": "^24.9.0",
     "pascal-case": "^2.0.1",
+    "pg": "^8.5.1",
     "prettier": "^1.13.7",
+    "prompts": "^2.4.1",
     "rimraf": "^3.0.0",
     "semver": "^6.3.0",
     "ts-jest": "~24.2.0",
@@ -81,12 +85,19 @@
     "tslint": "^5.11.0",
     "tslint-config-prettier": "^1.13.0",
     "tslint-plugin-prettier": "^2.0.0",
-    "typescript": "^3.1.4"
+    "typescript": "^3.1.4",
+    "version-bump-prompt": "^6.1.0"
   },
   "optionalDependencies": {
     "@types/faker": "^4.1.7",
     "aes256": "^1.0.4",
     "faker": "^4.1.0",
     "jsonwebtoken": "^8.5.1"
+  },
+  "engines": {
+    "node": ">= 12.20 <15"
+  },
+  "volta": {
+    "node": "12.20.0"
   }
 }
