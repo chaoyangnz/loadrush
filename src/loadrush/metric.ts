@@ -1,6 +1,6 @@
 import { KV } from './util';
 
-export enum Metrics {
+export enum Measurement {
   SUCCESS = 'http_ok',
   FAILURE = 'http_ko',
   REQUEST = 'http_req',
@@ -60,3 +60,13 @@ export type Fields =
   | FailureFields
   | VUFields
   | KV;
+
+export interface Stat {
+  duration: number;
+  total: number;
+  inflight: number; // response not received
+  success: number;
+  failure: number;
+  unknown: number; // response received but not checked status
+  error: number; // connection or network error, timeout etc.
+}

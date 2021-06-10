@@ -1,11 +1,10 @@
 import got, { Got, Options, Method } from 'got';
-import { Env } from './env';
 import { mimeExtension } from './actions/http/mime';
 import { Template } from './template';
 import { Readable } from 'stream';
 import FormData from 'form-data';
 import HttpAgent, { HttpOptions, HttpsAgent } from 'agentkeepalive';
-import { getEnv } from './util';
+import { config } from './config';
 
 export interface Request {
   url: string | Template;
@@ -52,13 +51,15 @@ export class DefaultHttp implements Http {
   constructor() {
     const agentOptions: HttpOptions = {
       keepAlive: true,
-      maxSockets: getEnv(Env.LOADRUSH_HTTP_MAX_SOCKETS, 1000_000),
-      timeout: getEnv(Env.LOADRUSH_HTTP_ACTIVE_SOCKET_TIMEOUT, 60_000),
-      freeSocketTimeout: getEnv(Env.LOADRUSH_HTTP_FREE_SOCKET_TIMEOUT, 30_000),
+      maxSockets: config.loadrush.http.maxSockets,
+      timeout: config.loadrush.http.activeSocketTimeout,
+      freeSocketTimeout: config.loadrush.http.freeSocketTimeout,
     };
     this.instance = got.extend({
       mutableDefaults: true,
-      rejectUnauthorized: false,
+      https: {
+        rejectUnauthorized: false,
+      },
       agent: {
         http: new HttpAgent(agentOptions),
         https: new HttpsAgent(agentOptions),
@@ -99,6 +100,6 @@ export class DefaultHttp implements Http {
 
   cookie(name: string, value: string) {
     this.instance.defaults.options.headers.Cookie = `${name}=${value}`;
-    this.instance.defaults.options.headers['User-Agent'] = 'LOADRUSH/Got';
+    this.instance.defaults.options.headers['User-Agent'] = 'LOADRUSH';
   }
 }

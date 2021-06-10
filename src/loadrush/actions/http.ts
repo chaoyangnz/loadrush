@@ -7,7 +7,7 @@ import { Logger } from '../log';
 import { mimeExtension } from './http/mime';
 import { queryHtml, queryJson } from './http/query';
 import { Template } from '../template';
-import { expectFunc, ExpectFunction } from './http/expect';
+import { expectFunc, ExpectFunction } from '../expect';
 
 interface RequestSpecOnly {
   cookie?: { [key: string]: Template };

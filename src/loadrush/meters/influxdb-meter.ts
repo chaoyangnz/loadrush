@@ -1,52 +1,43 @@
 import { Client } from '@influxdata/influx';
 import { BucketRetentionRules, IBucket } from '@influxdata/influx/dist';
-import { Env } from './env';
-import { Request, Response } from './http';
-import { Logger } from './log';
-import {
-  ErrorFields,
-  FailureFields,
-  Fields,
-  Metrics,
-  RequestFields,
-  ResponseFields,
-  SuccessFields,
-  VUFields,
-} from './metrics';
-import { getEnv, KV } from './util';
+import { Logger } from '../log';
+import { Fields, Measurement, Stat } from '../metric';
+import { KV } from '../util';
 
 // ----- This is a hack as InfluxDB client seems to require browser environment ----
 // @ts-ignore
 import { XMLHttpRequest } from 'xmlhttprequest';
+import { Meter } from '../meter';
+import { config } from '../config';
 // @ts-ignore
 global.XMLHttpRequest = XMLHttpRequest;
 // --------------------------------------------------------------------------------
 
-export class Meter {
+export class InfluxdbMeter extends Meter {
   client: Client;
   org: string;
   bucket: string;
   api: string;
-  logger = new Logger('loadrush:meter');
+  logger = new Logger('loadrush:meters');
 
   bucketExisted!: Promise<IBucket>;
   verboseMetrics = false;
 
   constructor() {
-    this.org = getEnv(Env.LOADRUSH_INFLUXDB_ORG, '');
-    this.bucket = getEnv(Env.LOADRUSH_TEST_ID, String(Date.now()));
-    this.api = getEnv(Env.LOADRUSH_INFLUXDB_API, '');
+    super();
+    this.org = config.loadrush.influxdb?.org;
+    this.bucket = config.loadrush.influxdb?.bucket;
+    this.api = config.loadrush.influxdb?.api;
 
     if (!this.org || !this.bucket || !this.api) {
       console.warn(
-        'LOADRUSH_INFLUXDB_ORG or LOADRUSH_INFLUXDB_API or LOADRUSH_TEST_ID is not set',
+        'LOADRUSH_INFLUXDB_ORG or LOADRUSH_INFLUXDB_API or LOADRUSH_INFLUXDB_BUCKET is not set',
       );
       process.exit(-1);
     }
-    this.client = new Client(this.api, getEnv(Env.LOADRUSH_INFLUXDB_TOKEN, ''));
+    this.client = new Client(this.api, config.loadrush.influxdb.token);
     this.createBucketIfNotExist();
-    this.verboseMetrics =
-      getEnv<string>(Env.LOADRUSH_VERBOSE_METRICS, 'false') === 'true';
+    this.verboseMetrics = config.loadrush.influxdb.verboseMetrics;
   }
 
   private createBucketIfNotExist() {
@@ -92,8 +83,8 @@ export class Meter {
     });
   }
 
-  private publish(
-    measurement: Metrics,
+  publish(
+    measurement: Measurement,
     fields: Fields,
     timestamp?: number,
     tags?: KV,
@@ -112,67 +103,9 @@ export class Meter {
       });
   }
 
-  publishHttpReq(request: Request, vu: number) {
-    this.publish(Metrics.REQUEST, {
-      count: 1,
-      method: request.method,
-      url: request.url,
-      vu,
-    } as RequestFields);
-  }
-
-  publishHttpRes(response: Response<any>, vu: number) {
-    this.publish(Metrics.RESPONSE, {
-      count: 1,
-      method: response.request.method,
-      url: response.request.url,
-      wait: response.timings.wait,
-      dns: response.timings.dns,
-      tcp: response.timings.tcp,
-      tls: 0,
-      request: response.timings.request,
-      firstByte: response.timings.firstByte,
-      download: response.timings.download,
-      total: response.timings.total,
-      status_code: response.status,
-    } as ResponseFields);
-  }
-
-  publishHttpOk(response: Response<any>) {
-    this.publish(Metrics.SUCCESS, {
-      count: 1,
-      method: response.request.method,
-      url: response.request.url,
-      status_code: response.status,
-    } as SuccessFields);
-  }
-
-  publishHttpKo(response: Response<any>, e: Error) {
-    this.publish(Metrics.FAILURE, {
-      count: 1,
-      method: response.request.method,
-      url: response.request.url,
-      status_code: response.status,
-      error: e.message,
-    } as FailureFields);
-  }
-
-  publishHttpErr(request: Request, e: Error) {
-    this.publish(Metrics.ERROR, {
-      count: 1,
-      method: request.method,
-      url: request.url,
-      error: e.message,
-    } as ErrorFields);
-  }
-
-  publishVu(vu: number) {
-    this.publish(Metrics.VU, { active: vu } as VUFields);
-  }
-
   // <measurement>[,<tag_key>=<tag_value>[,<tag_key>=<tag_value>]] <field_key>=<field_value>[,<field_key>=<field_value>] [<timestamp>]
   private build(
-    measurement: Metrics,
+    measurement: Measurement,
     fields: Fields,
     tags?: KV,
     timestamp?: number,
@@ -183,7 +116,7 @@ export class Meter {
         .map(([key, value]) => `${key}=${this.quoteIfNeed(value)}`)
         .join(',');
     }
-    const extraTags = getEnv(Env.LOADRUSH_INFLUXDB_TAGS, '');
+    const extraTags = config.loadrush.influxdb?.tags;
     if (extraTags) {
       joinedTags += `,${extraTags}`;
     }
@@ -217,5 +150,13 @@ export class Meter {
   private isNumeric(value: string | number) {
     // @ts-ignore
     return !isNaN(value);
+  }
+
+  stat(since: number): Promise<Stat> {
+    throw new Error('Not implemented');
+  }
+
+  dashboard(): string {
+    return '';
   }
 }

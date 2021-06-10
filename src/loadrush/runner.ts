@@ -1,14 +1,16 @@
-import 'core-js/features/promise/finally';
-import dotenv from 'dotenv';
 import { sample } from 'lodash';
 import { Action } from './action';
-import { Env } from './env';
-import { Logger, Reporter } from './log';
+import { Logger, Spinner } from './log';
 import { Meter } from './meter';
-import { getEnv } from './util';
 import { Volunteers } from './vu';
 import { ActionContext } from './context';
 import { Scenario, scenarios } from './scenario';
+import { config, initConfig } from './config';
+import { getEnv } from './util';
+import { TimescaledbMeter } from './meters/timescaledb-meter';
+import { Stat } from './metric';
+
+export type OnFinish = (stat: Stat) => any | void;
 
 export interface Runner {
   sustain(size: number): void;
@@ -26,18 +28,45 @@ export class DefaultRunner implements Runner {
 
   isScenariosRegistered = false;
 
-  constructor() {
-    // load .env env vars
-    dotenv.config();
+  onFinishCallback: OnFinish;
+  startTimestamp!: number;
 
-    this.baseUrl = getEnv(Env.LOADRUSH_BASE_URL, '');
-    this.duration = getEnv<number>(Env.LOADRUSH_DURATION, 600);
+  constructor() {
+    initConfig();
+    this.baseUrl = config.loadrush.baseUrl;
+    this.duration = config.loadrush.duration;
     this.vus = new Volunteers();
-    this.meter = new Meter();
-    for (const [key, value] of Object.entries(process.env)) {
+    this.meter = new TimescaledbMeter();
+    for (const [key] of Object.entries(process.env)) {
       this.env[key] = getEnv(key, '');
     }
     Object.freeze(this.env);
+
+    this.onFinish = this.onFinish.bind(this);
+    this.onFinishCallback = this.printStat.bind(this);
+    console.error(`Dashboard: ${this.meter.dashboard()}`);
+    process.on('SIGINT', this.onFinish);
+  }
+
+  printStat(stat: Stat) {
+    console.error(`\n\n\n`);
+    console.error(`Stat`, stat);
+  }
+
+  private onFinish() {
+    this.meter
+      .stat(this.startTimestamp)
+      .then((stat) => {
+        const result = this.onFinishCallback(stat);
+        if (result instanceof Promise) {
+          return result.then(() => process.exit(0));
+        }
+        process.exit(0);
+      })
+      .catch((e) => {
+        console.error(e);
+        process.exit(-1);
+      });
   }
 
   private registerScenarios() {
@@ -54,6 +83,9 @@ export class DefaultRunner implements Runner {
 
   // attach a vu to a scenario
   private async go() {
+    if (Date.now() - this.startTimestamp > config.loadrush.duration * 1000) {
+      return this.onFinish();
+    }
     this.registerScenarios();
     const vu = this.vus.checkin();
     const scenario = sample(this.scenarios) as Scenario;
@@ -61,15 +93,15 @@ export class DefaultRunner implements Runner {
 
     this.meter.publishVu(this.vus.active);
 
-    const reporter = new Reporter(
+    const spinner = new Spinner(
       `∷∷ Scenario: ${scenario.name} 👤 ${vu} 🕐 ${Date.now()}`,
     ).start();
 
     try {
       await this.waterfall(scenario.actions, context);
-      reporter.succeed();
+      spinner.succeed();
     } catch (e) {
-      reporter.fail();
+      spinner.fail();
     } finally {
       this.vus.checkout(vu);
     }
@@ -92,17 +124,17 @@ export class DefaultRunner implements Runner {
   async waterfall(actions: Action[], context: ActionContext) {
     let ctx = context;
     for (const action of actions) {
-      const reporter = new Reporter({
+      const spinner = new Spinner({
         text: ctx.renderTemplate(action.title),
-        indent: 2,
+        // indent: 2,
       }).start();
 
       try {
         ctx = ctx.clone();
         await action.run(ctx);
-        reporter.succeed();
+        spinner.succeed();
       } catch (e) {
-        reporter.fail();
+        spinner.fail();
         new Logger('loadrush:action').log(e);
         throw e;
       }
@@ -113,17 +145,17 @@ export class DefaultRunner implements Runner {
     return Promise.all(
       actions.map((action) => {
         const ctx = context.clone();
-        const reporter = new Reporter({
+        const spinner = new Spinner({
           text: ctx.renderTemplate(action.title),
-          indent: 2,
+          // indent: 2,
         }).start();
         return action
           .run(ctx)
           .then(() => {
-            reporter.succeed();
+            spinner.succeed();
           })
           .catch((e) => {
-            reporter.fail();
+            spinner.fail();
             new Logger('loadrush:action').log(e);
             throw e;
           });
@@ -132,14 +164,24 @@ export class DefaultRunner implements Runner {
   }
 
   // constant load at one time
-  sustain(size: number) {
+  sustain(size: number, onFinish?: OnFinish) {
+    if (onFinish) {
+      this.onFinishCallback = onFinish;
+    }
+    this.startTimestamp = Date.now();
+
     for (let i = 0; i < size; ++i) {
       this.relay();
     }
   }
 
   // ramp up
-  ramp(rate: number) {
+  ramp(rate: number, onFinish?: OnFinish) {
+    if (onFinish) {
+      this.onFinishCallback = onFinish;
+    }
+    this.startTimestamp = Date.now();
+
     setInterval(() => {
       this.flood(rate);
     }, 1_000);

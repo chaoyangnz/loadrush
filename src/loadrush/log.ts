@@ -1,6 +1,6 @@
 import debug, { Debugger } from 'debug';
-import ora, { Ora } from 'ora';
 import { redirectStdout } from './stdout';
+import ora, { Ora } from 'ora';
 
 // `debug` is sending to stdout; report (ora) is sending to stderr
 debug.log = console.info.bind(console);
@@ -36,21 +36,16 @@ export class Logger {
   }
 }
 
-export type ReporterOptions = ora.Options;
+export type SpinnerOptions = ora.Options;
 
-export class Reporter {
+export class Spinner {
   spinner: Ora;
-  constructor(text: string | ReporterOptions) {
+  constructor(text: string | SpinnerOptions) {
     this.spinner = ora(text);
   }
 
   start() {
     this.spinner.start();
-    return this;
-  }
-
-  stop() {
-    this.spinner.stop();
     return this;
   }
 
