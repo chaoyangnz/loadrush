@@ -33,8 +33,8 @@ export class DefaultRunner implements Runner {
 
   constructor() {
     initConfig();
-    this.baseUrl = config.loadrush.baseUrl;
-    this.duration = config.loadrush.duration;
+    this.baseUrl = config.baseUrl;
+    this.duration = config.duration;
     this.vus = new Volunteers();
     this.meter = new TimescaledbMeter();
     for (const [key] of Object.entries(process.env)) {
@@ -83,7 +83,7 @@ export class DefaultRunner implements Runner {
 
   // attach a vu to a scenario
   private async go() {
-    if (Date.now() - this.startTimestamp > config.loadrush.duration * 1000) {
+    if (Date.now() - this.startTimestamp > config.duration * 1000) {
       return this.onFinish();
     }
     this.registerScenarios();

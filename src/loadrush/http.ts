@@ -51,9 +51,9 @@ export class DefaultHttp implements Http {
   constructor() {
     const agentOptions: HttpOptions = {
       keepAlive: true,
-      maxSockets: config.loadrush.http.maxSockets,
-      timeout: config.loadrush.http.activeSocketTimeout,
-      freeSocketTimeout: config.loadrush.http.freeSocketTimeout,
+      maxSockets: config.http.maxSockets,
+      timeout: config.http.activeSocketTimeout,
+      freeSocketTimeout: config.http.freeSocketTimeout,
     };
     this.instance = got.extend({
       mutableDefaults: true,

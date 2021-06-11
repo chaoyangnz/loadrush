@@ -10,28 +10,26 @@ import {
 import dotenv from 'dotenv';
 
 export interface Config {
-  loadrush: {
-    vuPoolSize: number;
-    duration: number;
-    baseUrl: string;
-    meter: 'timescaledb' | 'influxdb';
-    http: {
-      maxSockets: number;
-      activeSocketTimeout: number;
-      freeSocketTimeout: number;
-    };
-    timescaledb?: {
-      host: string;
-      port: number;
-    };
-    influxdb?: {
-      org: string;
-      bucket: string;
-      token: string;
-      api: string;
-      tags: string;
-      verboseMetrics: boolean;
-    };
+  vuPoolSize: number;
+  duration: number;
+  baseUrl: string;
+  meter: 'timescaledb' | 'influxdb';
+  http: {
+    maxSockets: number;
+    activeSocketTimeout: number;
+    freeSocketTimeout: number;
+  };
+  timescaledb?: {
+    host: string;
+    port: number;
+  };
+  influxdb?: {
+    org: string;
+    bucket: string;
+    token: string;
+    api: string;
+    tags: string;
+    verboseMetrics: boolean;
   };
 }
 
@@ -75,22 +73,21 @@ export function initConfig() {
   dotenv.config();
   config = resolve<Config>(
     {
-      loadrush: {
-        vuPoolSize: 10_000,
-        duration: 600,
-        baseUrl: '',
-        meter: 'timescaledb',
-        http: {
-          maxSockets: 1000_000,
-          activeSocketTimeout: 60_000,
-          freeSocketTimeout: 30_000,
-        },
-        timescaledb: {
-          host: 'localhost',
-          port: 5432,
-        },
+      vuPoolSize: 10_000,
+      duration: 600,
+      baseUrl: '',
+      meter: 'timescaledb',
+      http: {
+        maxSockets: 1000_000,
+        activeSocketTimeout: 60_000,
+        freeSocketTimeout: 30_000,
+      },
+      timescaledb: {
+        host: 'localhost',
+        port: 5432,
       },
     },
     process.env,
+    'LOADRUSH',
   );
 }

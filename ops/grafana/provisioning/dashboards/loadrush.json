@@ -23,12 +23,6 @@
       "dashLength": 10,
       "dashes": false,
       "datasource": "timescaledb",
-      "fieldConfig": {
-        "defaults": {
-          "custom": {}
-        },
-        "overrides": []
-      },
       "fill": 1,
       "fillGradient": 0,
       "gridPos": {
@@ -56,7 +50,7 @@
         "alertThreshold": false
       },
       "percentage": false,
-      "pluginVersion": "7.3.5",
+      "pluginVersion": "8.0.0",
       "pointradius": 2,
       "points": false,
       "renderer": "flot",
@@ -167,8 +161,9 @@
       "description": "",
       "fieldConfig": {
         "defaults": {
-          "custom": {},
           "mappings": [],
+          "max": 100,
+          "min": 0,
           "thresholds": {
             "mode": "absolute",
             "steps": [
@@ -198,9 +193,10 @@
           "values": false
         },
         "showThresholdLabels": false,
-        "showThresholdMarkers": true
+        "showThresholdMarkers": true,
+        "text": {}
       },
-      "pluginVersion": "7.3.5",
+      "pluginVersion": "8.0.0",
       "targets": [
         {
           "format": "time_series",
@@ -208,7 +204,7 @@
           "metricColumn": "none",
           "queryType": "randomWalk",
           "rawQuery": true,
-          "rawSql": "SELECT time, \ncase \n  when (sum(success) + sum(failure) + sum(error_capture)) != 0 then sum(success) * 100 / (sum(success) + sum(failure) + sum(error_capture)) \n  else null\nend as \"success\",\ncase \n  when (sum(success) + sum(failure) + sum(error_capture)) = 0 then null \n  else sum(failure) * 100 / (sum(success) + sum(failure) + sum(error_capture)) \nend as \"failure\"\nfrom\n(\n  SELECT\n    time_bucket('1 seconds', time) as time, \n    case when success = 'true' then 1 else 0 end as success, \n    case when failure = 'true' then 1 else 0 end as failure, \n    case when error_capture = 'true' then 1 else 0 end as error_capture\n  FROM \n   response\n  WHERE\n    $__timeFilter(\"time\")\n) as response\nGROUP BY time\nORDER BY time",
+          "rawSql": "SELECT time, \ncase \n  when (sum(success) + sum(failure) + sum(error_capture)) != 0 then sum(success) * 100 / (sum(success) + sum(failure) + sum(error_capture)) \n  else null\nend as \"success\",\ncase \n  when (sum(success) + sum(failure) + sum(error_capture)) = 0 then null \n  else sum(failure) * 100 / (sum(success) + sum(failure) + sum(error_capture)) \nend as \"failure\"\nfrom\n(\n  SELECT\n    time_bucket('1 seconds', response.time) as time, \n    case when response_success.success = 'true' then 1 else 0 end as success, \n    case when response_failure.failure = 'true' then 1 else 0 end as failure, \n    case when response.error_capture = 'true' then 1 else 0 end as error_capture\n  FROM \n   response\n  LEFT join\n   response_success\n  on (response.trace = response_success.trace)\n  LEFT join\n   response_failure\n  on (response.trace = response_failure.trace) \n  WHERE\n    $__timeFilter(response.time)\n) as response\nGROUP BY time\nORDER BY time",
           "refId": "A",
           "select": [
             [
@@ -241,12 +237,6 @@
       "dashLength": 10,
       "dashes": false,
       "datasource": "timescaledb",
-      "fieldConfig": {
-        "defaults": {
-          "custom": {}
-        },
-        "overrides": []
-      },
       "fill": 1,
       "fillGradient": 0,
       "gridPos": {
@@ -273,7 +263,7 @@
         "alertThreshold": true
       },
       "percentage": false,
-      "pluginVersion": "7.3.5",
+      "pluginVersion": "8.0.0",
       "pointradius": 2,
       "points": false,
       "renderer": "flot",
@@ -359,12 +349,6 @@
       "dashLength": 10,
       "dashes": false,
       "datasource": "timescaledb",
-      "fieldConfig": {
-        "defaults": {
-          "custom": {}
-        },
-        "overrides": []
-      },
       "fill": 1,
       "fillGradient": 0,
       "gridPos": {
@@ -391,7 +375,7 @@
         "alertThreshold": true
       },
       "percentage": false,
-      "pluginVersion": "7.3.5",
+      "pluginVersion": "8.0.0",
       "pointradius": 2,
       "points": false,
       "renderer": "flot",
@@ -407,7 +391,7 @@
           "metricColumn": "none",
           "queryType": "randomWalk",
           "rawQuery": true,
-          "rawSql": "SELECT time, count(success) as response, sum(success) as \"😀\", sum(failure) as \"😩\", sum(error_capture) as \"😱\" from\n(\n  SELECT\n    time_bucket('1 s', time) as time, \n    case when success = 'true' then 1 else 0 end as success, \n    case when failure = 'true' then 1 else 0 end as failure, \n    case when error_capture = 'true' then 1 else 0 end as error_capture\n  FROM \n   response\n  WHERE\n    $__timeFilter(\"time\")\n) as response\nGROUP BY time\nORDER BY time",
+          "rawSql": "SELECT time, count(success) as response, sum(success) as \"😀\", sum(failure) as \"😩\", sum(error_capture) as \"😱\" from\n(\n  SELECT\n    time_bucket('1 s', response.time) as time, \n    case when response_success.success = 'true' then 1 else 0 end as success, \n    case when response_failure.failure = 'true' then 1 else 0 end as failure, \n    case when response.error_capture = 'true' then 1 else 0 end as error_capture\n  FROM \n   response\n  LEFT JOIN\n   response_success\n  ON (response.trace = response_success.trace) \n  LEFT JOIN\n   response_failure\n  ON (response.trace = response_failure.trace) \n  WHERE\n    $__timeFilter(response.time)\n) as response\nGROUP BY time\nORDER BY time",
           "refId": "A",
           "select": [
             [
@@ -478,12 +462,6 @@
       "dashLength": 10,
       "dashes": false,
       "datasource": "timescaledb",
-      "fieldConfig": {
-        "defaults": {
-          "custom": {}
-        },
-        "overrides": []
-      },
       "fill": 1,
       "fillGradient": 0,
       "gridPos": {
@@ -510,7 +488,7 @@
         "alertThreshold": true
       },
       "percentage": false,
-      "pluginVersion": "7.3.5",
+      "pluginVersion": "8.0.0",
       "pointradius": 2,
       "points": false,
       "renderer": "flot",
@@ -596,12 +574,6 @@
       "dashLength": 10,
       "dashes": false,
       "datasource": "timescaledb",
-      "fieldConfig": {
-        "defaults": {
-          "custom": {}
-        },
-        "overrides": []
-      },
       "fill": 1,
       "fillGradient": 0,
       "gridPos": {
@@ -628,7 +600,7 @@
         "alertThreshold": false
       },
       "percentage": false,
-      "pluginVersion": "7.3.5",
+      "pluginVersion": "8.0.0",
       "pointradius": 2,
       "points": false,
       "renderer": "flot",
@@ -735,7 +707,7 @@
     }
   ],
   "refresh": "5s",
-  "schemaVersion": 26,
+  "schemaVersion": 30,
   "style": "dark",
   "tags": [],
   "templating": {
@@ -749,5 +721,5 @@
   "timezone": "",
   "title": "Loadrush Dashboard",
   "uid": "loadrush",
-  "version": 1
+  "version": 2
 }

@@ -16,6 +16,8 @@ services:
     image: grafana/grafana:latest
     ports:
       - "3000:3000"
+    environment:
+      GF_AUTH_ANONYMOUS_ENABLED: "true"
     volumes:
       - ./grafana/provisioning:/etc/grafana/provisioning
     links:

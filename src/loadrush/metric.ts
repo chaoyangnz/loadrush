@@ -63,10 +63,11 @@ export type Fields =
 
 export interface Stat {
   duration: number;
-  total: number;
+  request: number;
   inflight: number; // response not received
-  success: number;
-  failure: number;
-  unknown: number; // response received but not checked status
+  response: number; // response received
+  success: number; // response received and OK
+  failure: number; // response received and KO
+  unknown: number; // response received but not asserted
   error: number; // connection or network error, timeout etc.
 }

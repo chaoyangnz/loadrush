@@ -20,7 +20,7 @@ export class Volunteers {
       if (!this.bitset.has(vu)) {
         break;
       }
-      if (vu >= config.loadrush.vuPoolSize) {
+      if (vu >= config.vuPoolSize) {
         console.warn('You set too high work load and no user can be available');
         process.exit(-1);
       }

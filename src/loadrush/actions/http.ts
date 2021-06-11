@@ -59,12 +59,13 @@ export type AfterResponseCallback = (
   context: Context,
 ) => Promise<void>;
 
+const logger = new Logger('loadrush:action:http');
+
 export function request(requestSpec: RequestSpec): Action {
   return {
     type: ActionType.STEP,
     title: `${requestSpec.method} ${requestSpec.url}`,
     run: async (context: ActionContext) => {
-      const logger = new Logger('loadrush:action:http');
       const spec = cloneDeep(requestSpec);
 
       const method = spec.method;
