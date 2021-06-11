@@ -1,7 +1,7 @@
-![](https://img.shields.io/npm/v/loadrush?color=green&style=flat-square)
+[![NPM version][npm-badge]][npm]
 ![](https://img.shields.io/github/package-json/v/loadflux/loadrush?color=blue&style=flat-square)
 ![](https://img.shields.io/github/license/loadflux/loadrush?color=orange&style=flat-square)
-![](https://github.com/loadflux/loadrush/workflows/build/badge.svg)
+[![Build Status - GitHub Actions][gha-badge]][gha-ci]
 
 # LOADRUSH
 
@@ -142,3 +142,8 @@ testing tools:
 - [ ] [`loadrush recorder`](https://github.com/loadflux/loadrush-recorder) Chrome extension to record the scenario and generate scenario file automatically
 - [ ] [`loadrush webbench`](https://github.com/loadflux/loadrush-webbench) Browser-side performance/load testing tool which simulates the web browser users
 and drives browsers to test the comprehensive performance of your application.
+
+[npm-badge]: https://img.shields.io/npm/v/loadrush?color=green&style=flat-square
+[npm]: https://www.npmjs.com/package/loadrush
+[gha-badge]: https://github.com/loadflux/loadrush/workflows/build/badge.svg
+[gha-ci]: https://github.com/loadflux/loadrush/actions
