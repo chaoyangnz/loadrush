@@ -25,9 +25,9 @@ export class InfluxdbMeter extends Meter {
 
   constructor() {
     super();
-    this.org = config.loadrush.influxdb?.org;
-    this.bucket = config.loadrush.influxdb?.bucket;
-    this.api = config.loadrush.influxdb?.api;
+    this.org = config.influxdb?.org;
+    this.bucket = config.influxdb?.bucket;
+    this.api = config.influxdb?.api;
 
     if (!this.org || !this.bucket || !this.api) {
       console.warn(
@@ -35,9 +35,9 @@ export class InfluxdbMeter extends Meter {
       );
       process.exit(-1);
     }
-    this.client = new Client(this.api, config.loadrush.influxdb.token);
+    this.client = new Client(this.api, config.influxdb.token);
     this.createBucketIfNotExist();
-    this.verboseMetrics = config.loadrush.influxdb.verboseMetrics;
+    this.verboseMetrics = config.influxdb.verboseMetrics;
   }
 
   private createBucketIfNotExist() {
@@ -116,7 +116,7 @@ export class InfluxdbMeter extends Meter {
         .map(([key, value]) => `${key}=${this.quoteIfNeed(value)}`)
         .join(',');
     }
-    const extraTags = config.loadrush.influxdb?.tags;
+    const extraTags = config.influxdb?.tags;
     if (extraTags) {
       joinedTags += `,${extraTags}`;
     }

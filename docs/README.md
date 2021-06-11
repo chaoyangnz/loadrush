@@ -108,7 +108,6 @@ Environment Variables:
 - General
     - `LOADRUSH_DURATION`: how long you plan to run your load testing.
     - `LOADRUSH_BASE_URL`: the base url of your application. If you don't set, you have to use absolute URL in your http action.
-    - `LOADRUSH_TEST_ID`: the test id (16 chars at most) used for different iteration of your testing. Default: current timestamp since unix epoch.
 - TimescaleDB
     - `LOADRUSH_TIMESCALEDB_HOST`: TimescaleDB host. Default `localhost`.
     - `LOADRUSH_TIMESCALEDB_PORT`: TimescaleDB port, Default `5432`.

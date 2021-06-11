@@ -6,7 +6,9 @@
     - `LOADRUSH_INFLUXDB_TOKEN`: `InfluxDB` token, which can be found in InfluxDB cloud admin console.
     - `LOADRUSH_INFLUXDB_ORG`: `InfluxDB` organization, which be can be found in the URL of InfluxDB cloud admin console. e.g. `https://us-west-2-1.aws.cloud2.influxdata.com/orgs/<orgID>`.
     - `LOADRUSH_VERBOSE_METRICS`: in terms of InfluxDB cost, text fields will be sent when it is set as `true`, otherwise only numeric fields are sent. Default: `false`.
-    As we know, InfluxDB Cloud free plan has a rate limit of 10kb/s write.
+    - `LOADRUSH_INFLUXDB_BUCKET`: the bucket (16 chars at most) used for different iteration of your testing. Default: current timestamp since unix epoch.
+
+As we know, InfluxDB Cloud free plan has a rate limit of 10kb/s write.
 
 ## InfluxDB
 
@@ -23,3 +25,5 @@ Some basic metrics like requests/success/failure count, mean response time, RPS,
 We choose InfluxDB as it has an intuitive UI and easy to integrate. But we will add more integrations to other monitoring platforms in the future.
 
 ![](https://i.imgur.com/gqWg5Xz.gif)
+
+
