@@ -1,5 +1,5 @@
 export { scenario } from './loadrush/scenario';
-export { request, get, post, put } from './loadrush/actions/http';
+export { request, get, post, put, patch } from './loadrush/actions/http';
 export { before, after } from './loadrush/actions/hook';
 export { think } from './loadrush/actions/think';
 export { log } from './loadrush/actions/log';

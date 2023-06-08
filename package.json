@@ -78,7 +78,7 @@
     "prompts": "^2.4.1",
     "rimraf": "^3.0.2",
     "semver": "^6.3.0",
-    "ts-jest": "~24.2.0",
+    "ts-jest": "^26.0.0",
     "ts-node": "^8.10.2",
     "tslint": "^5.11.0",
     "tslint-config-prettier": "^1.13.0",
@@ -93,7 +93,7 @@
     "jsonwebtoken": "^8.5.1"
   },
   "engines": {
-    "node": ">= 12.20 <15"
+    "node": ">= 12.20"
   },
   "volta": {
     "node": "12.20.0"

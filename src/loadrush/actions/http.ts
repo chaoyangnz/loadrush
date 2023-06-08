@@ -197,6 +197,10 @@ export function put(spec: Omit<RequestSpec, 'method'>): Action {
   return request({ ...spec, method: 'PUT' });
 }
 
+export function patch(spec: Omit<RequestSpec, 'method'>): Action {
+  return request({ ...spec, method: 'PATCH' });
+}
+
 function handleCapture(
   response: Response<any>,
   capture: CaptureSpec,

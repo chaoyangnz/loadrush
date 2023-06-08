@@ -35,7 +35,7 @@ export interface Config {
 
 const resolve = <T>(obj: T, context: any, prefix = '') => {
   forIn(obj, (value: any, key: string) => {
-    const envVarName = `${prefix}${snakeCase(key).toUpperCase()}`;
+    const envVarName = `${prefix}_${snakeCase(key).toUpperCase()}`;
     // eslint-disable-next-line no-prototype-builtins
     if (context.hasOwnProperty(envVarName)) {
       // check environment variables first

@@ -2,7 +2,8 @@ version: "3.9"
 services:
   timescaledb:
     container_name: timescaledb
-    image: timescale/pg_prometheus:latest-pg11
+    image: timescale/timescaledb:latest-pg12
+    privileged: true
     ports:
       - "5432:5432"
     environment:
