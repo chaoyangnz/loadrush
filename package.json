@@ -1,6 +1,6 @@
 {
   "name": "loadrush",
-  "version": "0.3.0",
+  "version": "0.3.1",
   "description": "Simple and flexible load testing tool by developers and for developers",
   "author": "Chao Yang <chaoyang.nz@gmail.com>",
   "license": "MIT",
@@ -37,6 +37,7 @@
   "dependencies": {
     "@influxdata/influx": "^0.5.5",
     "agentkeepalive": "^4.1.4",
+    "chance": "^1.1.11",
     "content-type": "^1.0.4",
     "debug": "^4.3.1",
     "dotenv": "^8.6.0",
