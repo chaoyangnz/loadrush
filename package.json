@@ -1,6 +1,6 @@
 {
   "name": "loadrush",
-  "version": "0.3.0",
+  "version": "0.3.2",
   "description": "Simple and flexible load testing tool by developers and for developers",
   "author": "Chao Yang <chaoyang.nz@gmail.com>",
   "license": "MIT",
